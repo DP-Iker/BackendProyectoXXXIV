@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.xxxiv.model.Usuario;
+import com.xxxiv.model.Vehiculo;
 import com.xxxiv.service.UsuarioService;
+import com.xxxiv.service.VehiculoService;
 
 import lombok.extern.java.Log;
 
@@ -16,10 +18,18 @@ import lombok.extern.java.Log;
 @RequestMapping(value = "/api")
 public class UsuarioController {
 	@Autowired
-	UsuarioService usuarioSrevice;
+	UsuarioService usuarioService;
 
 	@RequestMapping(value = "/usuarios")
 	public List<Usuario> getUsuarios() {
-		return usuarioSrevice.findAll();
+		return usuarioService.findAll();
+	}
+	
+	@Autowired
+	VehiculoService vehiculoService;
+	
+	@RequestMapping(value = "/vehiculos")
+	public List<Vehiculo> getVehiculos() {
+		return vehiculoService.findAll();
 	}
 }
