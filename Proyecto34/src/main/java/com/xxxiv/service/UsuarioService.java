@@ -11,9 +11,9 @@ import com.xxxiv.repository.UsuarioRepository;
 @Service
 public class UsuarioService {
 	@Autowired
-	UsuarioRepository usuarioReposirtory;
+	UsuarioRepository usuarioRepository;
 	
 	public List<Usuario> findAll() {
-		return usuarioReposirtory.findAll();
+		return usuarioRepository.findAll();
 	}
 }

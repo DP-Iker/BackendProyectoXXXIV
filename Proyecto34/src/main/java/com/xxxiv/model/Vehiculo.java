@@ -1,34 +1,47 @@
 package com.xxxiv.model;
 
-import java.time.LocalDate;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name="vehiculo")
+@Table(name = "vehiculo")
 public class Vehiculo {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
-	
-	private String marca;
-	private String modelo;
-	private byte[] imagen;
-	private int kilometraje;
-	private LocalDate ultimaRevision;
-	private int autonomia;
-	private Estado estado;
-	private String ubicacion;
-	
-	private enum Estado {  // Enum definido dentro de la clase de entidad
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(nullable = false, length = 45)
+    private String marca;
+
+    @Column(nullable = false, length = 45)
+    private String modelo;
+
+    @Lob
+    private byte[] imagen;
+
+    @Column(nullable = false)
+    private int kilometraje;
+
+    @Column(name = "ultima_revision")
+    private LocalDate ultimaRevision;
+
+    @Column(nullable = false)
+    private int autonomia;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Estado estado = Estado.DISPONIBLE;
+
+    @Column(length = 100)
+    private String ubicacion;
+
+    public enum Estado {
         DISPONIBLE,
         EN_USO,
         RESERVADO,
