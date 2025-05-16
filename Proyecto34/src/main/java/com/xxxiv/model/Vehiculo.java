@@ -14,7 +14,7 @@ public class Vehiculo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(nullable = false, length = 45)
     private String marca;
@@ -28,7 +28,6 @@ public class Vehiculo {
     @Column(nullable = false)
     private int kilometraje;
 
-    @Column(name = "ultima_revision")
     private LocalDate ultimaRevision;
 
     @Column(nullable = false)
