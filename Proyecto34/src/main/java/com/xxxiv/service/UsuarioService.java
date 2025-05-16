@@ -1,11 +1,13 @@
 package com.xxxiv.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.xxxiv.model.Usuario;
+import com.xxxiv.model.Vehiculo;
 import com.xxxiv.repository.UsuarioRepository;
 
 @Service
@@ -16,6 +18,10 @@ public class UsuarioService {
 	public List<Usuario> findAll() {
 		return usuarioRepository.findAll();
 	}
+	
+	public Optional<Usuario> findById(int id) {
+        return usuarioRepository.findById(id);
+    }
 
 	public Usuario crearUsuario(String usuario, String contrasenya, String email) {
 		// Verifica que el usuario es único

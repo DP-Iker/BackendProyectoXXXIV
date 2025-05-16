@@ -2,6 +2,14 @@ package com.xxxiv.dto;
 
 import java.time.LocalDate;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.xxxiv.controller.VehiculoController;
+import com.xxxiv.model.Usuario;
+import com.xxxiv.model.Vehiculo;
+import com.xxxiv.model.Viaje;
+import com.xxxiv.service.VehiculoService;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -27,4 +35,15 @@ public class ViajeCrearDTO {
 
 	    @NotNull(message = "El id del vehículo es obligatorio")
 	    private Integer vehiculoId;
+	    
+	    //Mapea el DTO a entidad
+	    public Viaje toEntity() {
+	        Viaje viaje = new Viaje();
+	        viaje.setFechaInicio(this.fechaInicio);
+	        viaje.setFechaFin(this.fechaFin);
+	        viaje.setKmRecorridos(this.kmRecorridos);
+
+	        return viaje;
+	    }
+
 }

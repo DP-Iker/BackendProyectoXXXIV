@@ -12,7 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.xxxiv.dto.ViajeCrearDTO;
+import com.xxxiv.model.Usuario;
+import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.Viaje;
+import com.xxxiv.service.UsuarioService;
+import com.xxxiv.service.VehiculoService;
 import com.xxxiv.service.ViajeService;
 
 import jakarta.validation.Valid;
@@ -21,35 +26,56 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/viajes")
 public class ViajeController {
 
-    private final ViajeService viajeService;
+	private final ViajeService viajeService;
+	private final UsuarioService usuarioService;
+    private final VehiculoService vehiculoService;
 
-    public ViajeController(ViajeService viajeService) {
+    public ViajeController(ViajeService viajeService, UsuarioService usuarioService, VehiculoService vehiculoService) {
         this.viajeService = viajeService;
+        this.usuarioService = usuarioService;
+        this.vehiculoService = vehiculoService;
     }
 
-    @GetMapping
-    public List<Viaje> getAll() {
-        return viajeService.findAll();
-    }
+	@GetMapping
+	public List<Viaje> getAll() {
+		return viajeService.findAll();
+	}
 
-    @GetMapping("/{id}")
-    public Optional<Viaje> getById(@PathVariable Integer id) {
-        return viajeService.findById(id);
-    }
+	@GetMapping("/{id}")
+	public Optional<Viaje> getById(@PathVariable Integer id) {
+		return viajeService.findById(id);
+	}
 
-    @PostMapping
-    public Viaje create(@Valid @RequestBody Viaje viaje) {
-        return viajeService.save(viaje);
-    }
+	@PostMapping
+	public Viaje create(@Valid @RequestBody ViajeCrearDTO dto) {
+	    // 1. Buscar usuario por ID
+	    Usuario usuario = usuarioService.findById(dto.getUsuarioId())
+	            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-    @PutMapping("/{id}")
-    public Viaje update(@PathVariable Integer id, @RequestBody Viaje viaje) {
-        viaje.setId(id);
-        return viajeService.save(viaje);
-    }
+	    // 2. Buscar vehículo por ID
+	    Vehiculo vehiculo = vehiculoService.findById(dto.getVehiculoId())
+	            .orElseThrow(() -> new RuntimeException("Vehiculo no encontrado"));
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
-        viajeService.deleteById(id);
-    }
+	    // 3. Convertir DTO a entidad Viaje sin usuario ni vehículo
+	    Viaje viaje = dto.toEntity();
+
+	    // 4. Asignar las entidades usuario y vehículo completas al viaje
+	    viaje.setUsuario(usuario);
+	    viaje.setVehiculo(vehiculo);
+
+	    // 5. Guardar el viaje en la base de datos y devolverlo
+	    return viajeService.save(viaje);
+	}
+
+
+	@PutMapping("/{id}")
+	public Viaje update(@PathVariable Integer id, @RequestBody Viaje viaje) {
+		viaje.setId(id);
+		return viajeService.save(viaje);
+	}
+
+	@DeleteMapping("/{id}")
+	public void delete(@PathVariable Integer id) {
+		viajeService.deleteById(id);
+	}
 }
