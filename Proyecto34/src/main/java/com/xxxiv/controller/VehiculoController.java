@@ -1,5 +1,6 @@
 package com.xxxiv.controller;
 
+import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.service.VehiculoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +27,11 @@ public class VehiculoController {
         return vehiculoService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+    
+    // Obtiene la ubicacion de los vehiculos disponibles
+    @GetMapping("/ubicaciones")
+    public List<UbicacionVehiculosDTO> getUbicacion() {
+        return vehiculoService.getUbicaciones();
     }
 }

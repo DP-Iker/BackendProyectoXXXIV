@@ -6,12 +6,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+import com.xxxiv.model.enums.Estado;
+
 @Data
 @NoArgsConstructor
 @Entity
 @Table(name = "vehiculo")
 public class Vehiculo {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -37,13 +38,9 @@ public class Vehiculo {
     @Column(nullable = false)
     private Estado estado = Estado.DISPONIBLE;
 
-    @Column(length = 100)
-    private String ubicacion;
-
-    public enum Estado {
-        DISPONIBLE,
-        EN_USO,
-        RESERVADO,
-        EN_MANTENIMIENTO
-    }
+    @Column(nullable = false)
+    private double latitud;
+    
+    @Column(nullable = false)
+    private double longitud;
 }

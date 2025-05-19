@@ -2,11 +2,11 @@ package com.xxxiv.dto;
 
 import java.time.LocalDate;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class ViajeMostrarDTO {
 
 	private Integer id;

@@ -2,22 +2,16 @@ package com.xxxiv.dto;
 
 import java.time.LocalDate;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.xxxiv.controller.VehiculoController;
-import com.xxxiv.model.Usuario;
-import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.Viaje;
-import com.xxxiv.service.VehiculoService;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class ViajeCrearDTO {
 	
 	    @NotNull(message = "La fecha de inicio es obligatoria")

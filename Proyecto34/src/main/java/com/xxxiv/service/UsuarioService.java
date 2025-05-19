@@ -44,4 +44,16 @@ public class UsuarioService {
 
 		return usuarioRepository.save(nuevoUsuario);
 	}
+	
+	public String eliminarUsuario(int id) {
+		Optional<Usuario> usuarioAEliminar = findById(id);
+		
+		// Si no encuentra al usuario
+		if (usuarioAEliminar.isEmpty()) {
+			return "No se ha encontrado al usuario";
+		}
+		// Elimina al usuario
+		usuarioRepository.deleteById(id);
+		return "Usuario con id "+ id +" eliminado";
+	}
 }
