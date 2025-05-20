@@ -2,6 +2,8 @@ package com.xxxiv.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,13 +30,17 @@ public class Usuario {
 	private String usuario;
 	
 	@NotNull
-	@Column(nullable = false)
+	@JsonIgnore
+	@Column(nullable = false, length = 60)
 	private String contrasenya;
 	
 	@Email
 	@NotNull
 	@Column(nullable = false, unique = true)
 	private String email;
+	
+	@Column(nullable = false)
+	private boolean esAdministrador;
 	
 	@Column(nullable = false)
 	private boolean estaBloqueado;

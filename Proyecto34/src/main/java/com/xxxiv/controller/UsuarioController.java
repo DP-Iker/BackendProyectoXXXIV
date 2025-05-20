@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.xxxiv.dto.CrearUsuarioDTO;
+import com.xxxiv.dto.LoginUsuarioDTO;
 import com.xxxiv.model.Usuario;
 import com.xxxiv.service.UsuarioService;
 
@@ -47,6 +48,12 @@ public class UsuarioController {
 	public ResponseEntity<Usuario> crearUsuario(@RequestBody @Valid CrearUsuarioDTO dto) {
 	    Usuario usuario = usuarioService.crearUsuario(dto.getUsuario(), dto.getContrasenya(), dto.getEmail());
 	    return new ResponseEntity<>(usuario, HttpStatus.CREATED);
+	}
+	
+	@PostMapping("/login")
+	@Operation(summary = "Inicia sesión del usuario", description = "Crea un usuario si le envias un nombre de usuario único, una contraseña y un email único")
+	public boolean loginUsuario(@RequestBody @Valid LoginUsuarioDTO dto) {
+		return usuarioService.loginUsuario(dto.getUsuario(), dto.getContrasenya());
 	}
 	
 	

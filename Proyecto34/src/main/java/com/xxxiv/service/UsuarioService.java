@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.xxxiv.model.Usuario;
-import com.xxxiv.model.Vehiculo;
 import com.xxxiv.repository.UsuarioRepository;
 
 @Service
@@ -33,16 +33,34 @@ public class UsuarioService {
 		if (usuarioRepository.existsByEmail(email)) {
 			throw new IllegalArgumentException("El email ya está en uso.");
 		}
+		
+		// Hashea la contraseña
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+	    String contrasenyaHasheada = passwordEncoder.encode(contrasenya);
 
 		// Crea el usuario
 		Usuario nuevoUsuario = new Usuario();
 		nuevoUsuario.setUsuario(usuario);
-		nuevoUsuario.setContrasenya(contrasenya);
+		nuevoUsuario.setContrasenya(contrasenyaHasheada);
 		nuevoUsuario.setEmail(email);
 		nuevoUsuario.setEstaBloqueado(false);
 		nuevoUsuario.setCreatedAt(java.time.LocalDateTime.now());
 
 		return usuarioRepository.save(nuevoUsuario);
+	}
+	
+	public boolean loginUsuario(String usuario, String contrasenya) {
+		// Verifica que el usuario existe
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByUsuario(usuario);
+	    
+	    if (usuarioOpt.isEmpty()) {
+	        return false; // Si no existe, devuelve false
+	    }
+	    Usuario usuarioDB = usuarioOpt.get();
+
+	    // Usa BCrypt para comparar
+	    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+	    return passwordEncoder.matches(contrasenya, usuarioDB.getContrasenya());
 	}
 	
 	public String eliminarUsuario(int id) {

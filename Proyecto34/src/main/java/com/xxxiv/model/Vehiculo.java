@@ -20,11 +20,11 @@ public class Vehiculo {
     @Column(nullable = false, length = 45)
     private String marca;
 
-    @Column(nullable = false, length = 45)
+    @Column(nullable = false, length = 100)
     private String modelo;
 
-    @Lob
-    private byte[] imagen;
+    @Column(length = 100)
+    private String imagen;
 
     @Column(nullable = false)
     private int kilometraje;
