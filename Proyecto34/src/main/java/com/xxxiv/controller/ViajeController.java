@@ -20,10 +20,11 @@ import com.xxxiv.service.UsuarioService;
 import com.xxxiv.service.VehiculoService;
 import com.xxxiv.service.ViajeService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/viajes")
+@RequestMapping("/viajes")
 public class ViajeController {
 
 	private final ViajeService viajeService;
@@ -37,16 +38,19 @@ public class ViajeController {
     }
 
 	@GetMapping
+	@Operation(summary = "Devuelve todos los viajes", description = "Devuelve todos los viajes que hay en la BD")
 	public List<Viaje> getAll() {
 		return viajeService.findAll();
 	}
 
 	@GetMapping("/{id}")
+	@Operation(summary = "Devuelve el viaje por ID", description = "Devuelve toda la info del viaje por su ID")
 	public Optional<Viaje> getById(@PathVariable Integer id) {
 		return viajeService.findById(id);
 	}
 
 	@PostMapping
+	@Operation(summary = "Crea un viaje", description = "")
 	public Viaje create(@Valid @RequestBody ViajeCrearDTO dto) {
 	    // 1. Buscar usuario por ID
 	    Usuario usuario = usuarioService.findById(dto.getUsuarioId())
@@ -68,13 +72,15 @@ public class ViajeController {
 	}
 
 
-	@PutMapping("/{id}")
-	public Viaje update(@PathVariable Integer id, @RequestBody Viaje viaje) {
-		viaje.setId(id);
-		return viajeService.save(viaje);
-	}
+//	@PutMapping("/{id}")
+//	@Operation(summary = "Devuelve todos los vehículos", description = "Devuelve todos los vehículos que hay en la BD")
+//	public Viaje update(@PathVariable Integer id, @RequestBody Viaje viaje) {
+//		viaje.setId(id);
+//		return viajeService.save(viaje);
+//	}
 
 	@DeleteMapping("/{id}")
+	@Operation(summary = "Borra el viaje", description = "Elimina el viaje de la BD por ID")
 	public void delete(@PathVariable Integer id) {
 		viajeService.deleteById(id);
 	}

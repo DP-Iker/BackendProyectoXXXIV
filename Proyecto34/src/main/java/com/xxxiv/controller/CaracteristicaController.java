@@ -12,7 +12,7 @@ import com.xxxiv.model.Caracteristica;
 import com.xxxiv.service.CaracteristicaService;
 
 @RestController
-@RequestMapping("/api/caracteristicas")
+@RequestMapping("/caracteristicas")
 public class CaracteristicaController {
 
     private final CaracteristicaService caracteristicaService;

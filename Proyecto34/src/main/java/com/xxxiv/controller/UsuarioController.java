@@ -17,21 +17,24 @@ import com.xxxiv.dto.CrearUsuarioDTO;
 import com.xxxiv.model.Usuario;
 import com.xxxiv.service.UsuarioService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping(value = "/api/usuarios")
+@RequestMapping(value = "/usuarios")
 public class UsuarioController {
 	@Autowired
 	UsuarioService usuarioService;
 
 	// GET
 	@GetMapping
+	@Operation(summary = "Devuelve todos los usuarios", description = "Devuelve todos los usuarios que hay en la BD")
 	public List<Usuario> getUsuarios() {
 		return usuarioService.findAll();
 	}
 	
 	@GetMapping("/{id}")
+	@Operation(summary = "Devuelve al usuario por ID", description = "Devuelve todos los datos del usuario de esa ID que hay en la BD")
     public ResponseEntity<Usuario> getUsuarioById(@PathVariable int id) {
         return usuarioService.findById(id)
                 .map(ResponseEntity::ok)
@@ -40,6 +43,7 @@ public class UsuarioController {
 	
 	// POST
 	@PostMapping
+	@Operation(summary = "Crea un usuario", description = "Crea un usuario si le envias un nombre de usuario único, una contraseña y un email único")
 	public ResponseEntity<Usuario> crearUsuario(@RequestBody @Valid CrearUsuarioDTO dto) {
 	    Usuario usuario = usuarioService.crearUsuario(dto.getUsuario(), dto.getContrasenya(), dto.getEmail());
 	    return new ResponseEntity<>(usuario, HttpStatus.CREATED);
@@ -48,6 +52,7 @@ public class UsuarioController {
 	
 	// DELETE
 	@DeleteMapping("/{id}")
+	@Operation(summary = "Elimina al usuario por ID", description = "Elimina al usuario de la BD con el ID")
 	public String eliminarUsuario(@PathVariable int id) {
 		return usuarioService.eliminarUsuario(id);
 	}
