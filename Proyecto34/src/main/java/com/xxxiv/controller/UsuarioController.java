@@ -2,7 +2,6 @@ package com.xxxiv.controller;
 
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.xxxiv.dto.CrearUsuarioDTO;
+import com.xxxiv.dto.EmailDTO;
 import com.xxxiv.dto.FiltroUsuariosDTO;
 import com.xxxiv.dto.LoginUsuarioDTO;
 import com.xxxiv.model.Usuario;
@@ -27,12 +27,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/usuarios")
 public class UsuarioController {
-	@Autowired
-	UsuarioService usuarioService;
+	private final UsuarioService usuarioService;
 
 	// GET
 	@GetMapping
@@ -87,6 +88,12 @@ public class UsuarioController {
 	public boolean loginUsuario(@RequestBody @Valid LoginUsuarioDTO dto) {
 		return usuarioService.loginUsuario(dto.getUsuario(), dto.getContrasenya());
 	}
+	
+//	@PostMapping("/enviar-codigo")
+//	@Operation(summary = "Inicia sesión del usuario", description = "Inicia sesión con el usuario y contraseña")
+//	public void enviarCodigo(@RequestBody @Valid EmailDTO dto) {
+//		return usuarioService.enviarCodigo(dto.getEmail());
+//	}
 
 	// DELETE
 	@DeleteMapping("/{id}")

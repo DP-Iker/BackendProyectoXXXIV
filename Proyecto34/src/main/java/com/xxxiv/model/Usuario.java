@@ -26,7 +26,7 @@ public class Usuario {
 	private int id;
 	
 	@NotNull
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, unique = true, length = 25)
 	private String usuario;
 	
 	@NotNull
@@ -36,7 +36,7 @@ public class Usuario {
 	
 	@Email
 	@NotNull
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, unique = true, length = 40)
 	private String email;
 	
 	@Column(nullable = false)
