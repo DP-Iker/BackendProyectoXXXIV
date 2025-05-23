@@ -56,7 +56,7 @@ public class ViajeController {
 	            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
 	    // 2. Buscar vehículo por ID
-	    Vehiculo vehiculo = vehiculoService.findById(dto.getVehiculoId())
+	    Vehiculo vehiculo = vehiculoService.buscarPorId(dto.getVehiculoId())
 	            .orElseThrow(() -> new RuntimeException("Vehiculo no encontrado"));
 
 	    // 3. Convertir DTO a entidad Viaje sin usuario ni vehículo
