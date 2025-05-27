@@ -2,6 +2,8 @@ package com.xxxiv.model;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -49,7 +51,7 @@ public class Usuario {
 	@Column(columnDefinition = "MEDIUMTEXT")
 	private String motivoBloqueo;
 	
-	@NotNull
+	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 }

@@ -79,27 +79,6 @@ public class UsuarioService {
 		return usuarioRepository.save(nuevoUsuario);
 	}
 
-	/**
-	 * Comprueba que el usuario y contraseña indicados coinciden con la BD
-	 * 
-	 * @param usuario     Nombre de usuario
-	 * @param contrasenya Contraseña enviada
-	 * @return Booleano sobre si coinciden las credenciales
-	 */
-	public boolean loginUsuario(String usuario, String contrasenya) {
-		// Verifica que el usuario existe
-		Optional<Usuario> usuarioOpt = usuarioRepository.findByUsuario(usuario);
-
-		if (usuarioOpt.isEmpty()) {
-			return false; // Si no existe, devuelve false
-		}
-		Usuario usuarioDB = usuarioOpt.get();
-
-		// Usa BCrypt para comparar
-		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		return passwordEncoder.matches(contrasenya, usuarioDB.getContrasenya());
-	}
-
 //	public void enviarCodigo(String email) throws EmailException {
 //		try {
 //	        

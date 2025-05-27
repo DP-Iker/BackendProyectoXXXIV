@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.xxxiv.dto.CrearUsuarioDTO;
 import com.xxxiv.dto.EmailDTO;
 import com.xxxiv.dto.FiltroUsuariosDTO;
-import com.xxxiv.dto.LoginUsuarioDTO;
 import com.xxxiv.model.Usuario;
 import com.xxxiv.service.UsuarioService;
 
@@ -74,6 +73,13 @@ public class UsuarioController {
 	public ResponseEntity<Usuario> getUsuarioById(@PathVariable int id) {
 		return usuarioService.buscarPorId(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
 	}
+	
+//	@GetMapping("/me")
+//    public ResponseEntity<Usuario> getUsuarioPropio() {
+//        
+//
+//        return ResponseEntity.ok(currentUser);
+//    }
 
 	// POST
 	@PostMapping
@@ -81,12 +87,6 @@ public class UsuarioController {
 	public ResponseEntity<Usuario> crearUsuario(@RequestBody @Valid CrearUsuarioDTO dto) {
 		Usuario usuario = usuarioService.crearUsuario(dto.getUsuario(), dto.getContrasenya(), dto.getEmail());
 		return new ResponseEntity<>(usuario, HttpStatus.CREATED);
-	}
-
-	@PostMapping("/login")
-	@Operation(summary = "Inicia sesión del usuario", description = "Inicia sesión con el usuario y contraseña")
-	public boolean loginUsuario(@RequestBody @Valid LoginUsuarioDTO dto) {
-		return usuarioService.loginUsuario(dto.getUsuario(), dto.getContrasenya());
 	}
 	
 //	@PostMapping("/enviar-codigo")

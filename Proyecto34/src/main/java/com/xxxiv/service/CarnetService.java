@@ -2,7 +2,6 @@ package com.xxxiv.service;
 
 import com.xxxiv.model.Carnet;
 import com.xxxiv.repository.CarnetRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +12,6 @@ public class CarnetService {
 
     private final CarnetRepository carnetRepository;
 
-    @Autowired
     public CarnetService(CarnetRepository carnetRepository) {
         this.carnetRepository = carnetRepository;
     }
