@@ -2,18 +2,48 @@ package com.xxxiv.dto;
 
 import java.time.LocalDate;
 
+import com.xxxiv.model.Viaje;
+import com.xxxiv.model.enums.Localidad;
+
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
+@Getter
+@Setter
 public class ViajeMostrarDTO {
 
 	private Integer id;
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
-    private Integer kmRecorridos;
-    private Integer usuarioId;
-    private Integer vehiculoId;
-    
+	private LocalDate fechaInicio;
+	private LocalDate fechaFin;
+	private Integer kmRecorridos;
+	private Integer usuarioId;
+	private Integer vehiculoId;
+	private Double longitud;
+	private Double latitud;
+	private Localidad localidad;
+
+	public static ViajeMostrarDTO fromEntity(Viaje viaje) {
+		ViajeMostrarDTO dto = new ViajeMostrarDTO();
+		dto.setId(viaje.getId());
+		dto.setFechaInicio(viaje.getFechaInicio());
+		dto.setFechaFin(viaje.getFechaFin());
+		dto.setKmRecorridos(viaje.getKmRecorridos());
+
+		if (viaje.getUsuario() != null) {
+			dto.setUsuarioId(viaje.getUsuario().getId());
+		}
+
+		if (viaje.getVehiculo() != null) {
+			dto.setVehiculoId(viaje.getVehiculo().getId());
+			dto.setLatitud(viaje.getVehiculo().getLatitud());
+			dto.setLongitud(viaje.getVehiculo().getLongitud());
+			dto.setLocalidad(viaje.getVehiculo().getLocalidad());
+		}
+
+		return dto;
+	}
 }

@@ -2,6 +2,7 @@ package com.xxxiv.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.xxxiv.dto.ViajeActualizarDTO;
 import com.xxxiv.dto.ViajeCrearDTO;
+import com.xxxiv.dto.ViajeMostrarDTO;
 import com.xxxiv.model.Usuario;
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.Viaje;
@@ -41,8 +43,11 @@ public class ViajeController {
 
 	@GetMapping
 	@Operation(summary = "Devuelve todos los viajes", description = "Devuelve todos los viajes que hay en la BD")
-	public List<Viaje> getAll() {
-		return viajeService.findAll();
+	public List<ViajeMostrarDTO> getAll() {
+		return viajeService.findAll()
+        .stream()
+        .map(ViajeMostrarDTO::fromEntity)
+        .collect(Collectors.toList());
 	}
 
 	@GetMapping("/{id}")
@@ -69,7 +74,11 @@ public class ViajeController {
 
 		// 4. Actualizar estado del vehículo
 		vehiculo.setEstado(Estado.EN_USO);
-		vehiculoService.save(vehiculo); //
+		vehiculo.setLatitud(dto.getLatitud());
+		vehiculo.setLongitud(dto.getLongitud());
+		vehiculo.setLocalidad(dto.getLocalidad());
+		
+		vehiculoService.save(vehiculo);
 
 		// 5. Convertir DTO a entidad Viaje sin usuario ni vehículo
 		Viaje viaje = dto.toEntity();
@@ -82,28 +91,23 @@ public class ViajeController {
 		return viajeService.save(viaje);
 	}
 
-//	@PatchMapping("/{id}")
-//	@Operation(summary = "Actualiza parcialmente un viaje", description = "Finalización y ubicación")
-//	public Viaje actualizarViaje(@PathVariable Integer id, @RequestBody ViajeActualizarDTO dto) {
-//
-//		Viaje viaje = viajeService.buscarPorId(id).orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
-//
-//		if (dto.getLatitud() != null && dto.getLongitud() != null) {
-//			Vehiculo vehiculo = viaje.getVehiculo();
-//			vehiculo.setLatitud(dto.getLatitud());
-//			vehiculo.setLongitud(dto.getLongitud());
-//			vehiculoService.save(vehiculo); //
-//		}
-//
-//		if (dto.getFechaFin() != null) {
-//			viaje.setFechaFin(dto.getFechaFin());
-//		}
-//		if (dto.getKmRecorridos() != null) {
-//			viaje.setKmRecorridos(dto.getKmRecorridos());
-//		}
-//
-//		return viajeService.save(viaje);
-//	}
+	@PatchMapping("/{id}")
+	@Operation(summary = "Actualiza parcialmente un viaje", description = "Finalización y ubicación")
+	public Viaje actualizarViaje(@PathVariable Integer id, @RequestBody ViajeActualizarDTO dto) {
+
+		Viaje viaje = viajeService.buscarPorId(id).orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
+
+		vehiculoService.actualizarUbicacion(viaje.getVehiculo().getId(), dto.getLatitud(), dto.getLongitud(), dto.getLocalidad());
+
+		if (dto.getFechaFin() != null) {
+			viaje.setFechaFin(dto.getFechaFin());
+		}
+		if (dto.getKmRecorridos() != null) {
+			viaje.setKmRecorridos(dto.getKmRecorridos());
+		}
+
+		return viajeService.save(viaje);
+	}
 
 //	@PutMapping("/{id}")
 //	@Operation(summary = "Devuelve todos los vehículos", description = "Devuelve todos los vehículos que hay en la BD")

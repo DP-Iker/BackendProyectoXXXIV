@@ -3,6 +3,7 @@ package com.xxxiv.dto;
 import java.time.LocalDate;
 
 import com.xxxiv.model.Viaje;
+import com.xxxiv.model.enums.Localidad;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -30,12 +31,23 @@ public class ViajeCrearDTO {
 	    @NotNull(message = "El id del vehículo es obligatorio")
 	    private Integer vehiculoId;
 	    
+	    @NotNull(message = "La longitud es obligatoria para la ubicación")
+	    private Double longitud;
+	    
+	    @NotNull(message = "La latitud es obligatoria para la ubicación")
+	    private Double latitud;
+	    
+	    @NotNull(message = "La localidad es obligatoria")
+	    private Localidad localidad;
+	    
+	    
 	    //Mapea el DTO a entidad
 	    public Viaje toEntity() {
 	        Viaje viaje = new Viaje();
 	        viaje.setFechaInicio(this.fechaInicio);
 	        viaje.setFechaFin(this.fechaFin);
 	        viaje.setKmRecorridos(this.kmRecorridos);
+	        
 
 	        return viaje;
 	    }
