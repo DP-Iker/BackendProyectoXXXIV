@@ -32,7 +32,7 @@ public class AuthService {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
-        return jwtUtil.generarToken(usuarioDB.getUsuario());
+        return jwtUtil.generarToken(usuarioDB.getUsuario(), usuarioDB.isEsAdministrador());
     }
 }
 

@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,16 +16,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.xxxiv.dto.CrearUsuarioDTO;
 import com.xxxiv.dto.EmailDTO;
 import com.xxxiv.dto.FiltroUsuariosDTO;
+import com.xxxiv.dto.UsuarioDTO;
 import com.xxxiv.model.Usuario;
 import com.xxxiv.service.UsuarioService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +40,7 @@ public class UsuarioController {
 
 	// GET
 	@GetMapping
+	@SecurityRequirement(name = "bearerAuth")
 	@Operation(summary = "Devuelve todos los usuarios", description = "Devuelve todos los usuarios que hay en la BD")
 	@Parameters({
 	    @Parameter(name = "page", description = "Número de página", example = "0"),
@@ -69,17 +74,25 @@ public class UsuarioController {
 	}
 
 	@GetMapping("/{id}")
+	@SecurityRequirement(name = "bearerAuth")
 	@Operation(summary = "Devuelve al usuario por ID", description = "Devuelve todos los datos del usuario de esa ID que hay en la BD")
 	public ResponseEntity<Usuario> getUsuarioById(@PathVariable int id) {
 		return usuarioService.buscarPorId(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
 	}
 	
-//	@GetMapping("/me")
-//    public ResponseEntity<Usuario> getUsuarioPropio() {
-//        
-//
-//        return ResponseEntity.ok(currentUser);
-//    }
+	@GetMapping("/me")
+	@SecurityRequirement(name = "bearerAuth")
+	@Operation(summary = "Devuelve al usuario según su token de sesión", description = "Devuelve todos los datos del usuario que pide la información")
+    public ResponseEntity<UsuarioDTO> obtenerUsuarioAutenticado(Authentication authentication) {
+        String username = authentication.getName();
+        Usuario usuarioDb = usuarioService.buscarPorUsuario(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        
+        // Crea el DTO
+        UsuarioDTO usuario = new UsuarioDTO();
+        usuario.setUsername(usuarioDb.getUsuario());
+        usuario.setEmail(usuarioDb.getEmail());
+        return ResponseEntity.ok(usuario);
+    }
 
 	// POST
 	@PostMapping
@@ -97,6 +110,7 @@ public class UsuarioController {
 
 	// DELETE
 	@DeleteMapping("/{id}")
+	@SecurityRequirement(name = "bearerAuth")
 	@Operation(summary = "Elimina al usuario por ID", description = "Elimina al usuario de la BD con el ID")
 	public boolean eliminarUsuario(@PathVariable int id) {
 		return usuarioService.eliminarUsuario(id);

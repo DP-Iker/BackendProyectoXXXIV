@@ -17,7 +17,7 @@ public class JwtUtilTest {
 	    jwtUtil.expirationMs = 3600000; // 1 hora
 	    jwtUtil.init();
 
-	    String token = jwtUtil.generarToken("usuarioPrueba");
+	    String token = jwtUtil.generarToken("usuarioPrueba", true);
 	    assertNotNull(token);
 
 	    Claims claims = jwtUtil.validarToken(token);

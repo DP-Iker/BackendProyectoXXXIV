@@ -35,7 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 Claims claims = jwtUtil.validarToken(token);
                 String username = claims.getSubject();
-                boolean isAdmin = claims.get("isAdmin", Boolean.class);
+                boolean isAdmin = claims.get("esAdmin", Boolean.class);
 
                 List<SimpleGrantedAuthority> authorities = isAdmin ?
                         List.of(new SimpleGrantedAuthority("ROLE_ADMIN")) :
@@ -47,8 +47,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
 
             } catch (Exception e) {
-                // Token inválido o expirado
-            	SecurityContextHolder.clearContext();
+                SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }

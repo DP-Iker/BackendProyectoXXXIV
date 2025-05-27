@@ -20,6 +20,7 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+	private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
@@ -35,6 +36,7 @@ public class SecurityConfig {
                 .requestMatchers("/admin/**").hasRole("ADMIN") // Solo admins
                 .anyRequest().authenticated()
             )
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

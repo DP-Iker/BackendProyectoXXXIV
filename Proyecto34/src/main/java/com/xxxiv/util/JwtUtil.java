@@ -33,16 +33,25 @@ public class JwtUtil {
 		}
 	}
 
-	public String generarToken(String username) {
+	public String generarToken(String username, boolean esAdmin) {
 		Date ahora = new Date();
 		Date expiracion = new Date(ahora.getTime() + expirationMs);
 
-		return Jwts.builder().subject(username).issuedAt(ahora).expiration(expiracion).signWith(secretKey).compact();
+		return Jwts.builder()
+				.subject(username)
+				.issuedAt(ahora)
+				.expiration(expiracion)
+				.claim("esAdmin", esAdmin)
+				.signWith(secretKey)
+				.compact();
 	}
 
 	public Claims validarToken(String token) {
 		try {
-			return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+			return Jwts.parser()
+					.verifyWith(secretKey)
+					.build().parseSignedClaims(token)
+					.getPayload();
 		} catch (JwtException e) {
 			// Puede ser ExpiredJwtException, UnsupportedJwtException, etc.
 			throw new IllegalArgumentException("Token JWT inválido o expirado", e);

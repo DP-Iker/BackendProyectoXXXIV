@@ -43,6 +43,16 @@ public class UsuarioService {
 	public Optional<Usuario> buscarPorId(int id) {
 		return usuarioRepository.findById(id);
 	}
+	
+	/**
+	 * Busca al usuario por el nombre de usuario
+	 * 
+	 * @param usuario Nombre de usuario
+	 * @return Usuario
+	 */
+	public Optional<Usuario> buscarPorUsuario(String usuario) {
+		return usuarioRepository.findByUsuario(usuario);
+	}
 
 	// POST
 	/**

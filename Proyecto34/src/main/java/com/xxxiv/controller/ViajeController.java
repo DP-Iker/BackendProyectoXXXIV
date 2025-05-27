@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.xxxiv.dto.ViajeActualizarDTO;
+
 import com.xxxiv.dto.ViajeCrearDTO;
 import com.xxxiv.model.Usuario;
 import com.xxxiv.model.Vehiculo;
@@ -82,28 +82,28 @@ public class ViajeController {
 		return viajeService.save(viaje);
 	}
 
-	@PatchMapping("/{id}")
-	@Operation(summary = "Actualiza parcialmente un viaje", description = "Finalización y ubicación")
-	public Viaje actualizarViaje(@PathVariable Integer id, @RequestBody ViajeActualizarDTO dto) {
-
-		Viaje viaje = viajeService.buscarPorId(id).orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
-
-		if (dto.getLatitud() != null && dto.getLongitud() != null) {
-			Vehiculo vehiculo = viaje.getVehiculo();
-			vehiculo.setLatitud(dto.getLatitud());
-			vehiculo.setLongitud(dto.getLongitud());
-			vehiculoService.save(vehiculo); //
-		}
-
-		if (dto.getFechaFin() != null) {
-			viaje.setFechaFin(dto.getFechaFin());
-		}
-		if (dto.getKmRecorridos() != null) {
-			viaje.setKmRecorridos(dto.getKmRecorridos());
-		}
-
-		return viajeService.save(viaje);
-	}
+//	@PatchMapping("/{id}")
+//	@Operation(summary = "Actualiza parcialmente un viaje", description = "Finalización y ubicación")
+//	public Viaje actualizarViaje(@PathVariable Integer id, @RequestBody ViajeActualizarDTO dto) {
+//
+//		Viaje viaje = viajeService.buscarPorId(id).orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
+//
+//		if (dto.getLatitud() != null && dto.getLongitud() != null) {
+//			Vehiculo vehiculo = viaje.getVehiculo();
+//			vehiculo.setLatitud(dto.getLatitud());
+//			vehiculo.setLongitud(dto.getLongitud());
+//			vehiculoService.save(vehiculo); //
+//		}
+//
+//		if (dto.getFechaFin() != null) {
+//			viaje.setFechaFin(dto.getFechaFin());
+//		}
+//		if (dto.getKmRecorridos() != null) {
+//			viaje.setKmRecorridos(dto.getKmRecorridos());
+//		}
+//
+//		return viajeService.save(viaje);
+//	}
 
 //	@PutMapping("/{id}")
 //	@Operation(summary = "Devuelve todos los vehículos", description = "Devuelve todos los vehículos que hay en la BD")
