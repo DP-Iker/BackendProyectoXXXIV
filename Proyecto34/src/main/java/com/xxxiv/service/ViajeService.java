@@ -21,7 +21,7 @@ public class ViajeService {
         return viajeRepository.findAll();
     }
 
-    public Optional<Viaje> findById(Integer id) {
+    public Optional<Viaje> buscarPorId(Integer id) {
         return viajeRepository.findById(id);
     }
 

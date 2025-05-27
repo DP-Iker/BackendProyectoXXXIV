@@ -3,6 +3,7 @@ package com.xxxiv.service;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
+import com.xxxiv.model.Viaje;
 import com.xxxiv.model.enums.Estado;
 import com.xxxiv.model.enums.Localidad;
 import com.xxxiv.repository.VehiculoRepository;
@@ -80,5 +81,9 @@ public class VehiculoService {
      */
     public List<Localidad> getLocalidadesDisponibles() {
     	return vehiculoRepository.buscarLocalidadesDisponibles(Estado.DISPONIBLE);
+    }
+    
+    public Vehiculo save(Vehiculo vehiculo) {
+        return vehiculoRepository.save(vehiculo);
     }
 }
