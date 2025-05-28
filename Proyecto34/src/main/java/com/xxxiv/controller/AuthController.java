@@ -48,12 +48,14 @@ public class AuthController {
 	}
 	
 	@PostMapping("/contrasenya-olvidada")
+	@Operation(summary = "Envia un correo al email", description = "Envia un correo al email si este existe para cambiar la contraseña")
     public ResponseEntity<String> forgotPassword(@RequestBody @Valid EmailDTO dto) {
         authService.enviarCorreoCambioContrasenya(dto.getEmail());
         return ResponseEntity.ok("Correo enviado si el email existe");
     }
 
     @PostMapping("/cambiar-contrasenya")
+    @Operation(summary = "cambia la contraseña", description = "Cambia la contraseña del usuario según el token")
     public ResponseEntity<String> resetPassword(@RequestBody @Valid CambiarContrasenyaDTO dto) {
         authService.cambiarContrasenya(dto.getToken(), dto.getContrasenyaNueva());
         return ResponseEntity.ok("Contraseña cambiada correctamente");
