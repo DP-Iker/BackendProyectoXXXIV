@@ -11,10 +11,9 @@ import com.xxxiv.model.Usuario;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer>, JpaSpecificationExecutor<Usuario> {
 	
-	// Crear usuario
 	boolean existsByUsuario(String usuario);
     boolean existsByEmail(String email);
     
-    // Login
     Optional<Usuario> findByUsuario(String usuario);
+    Optional<Usuario> findByEmail(String email);
 }

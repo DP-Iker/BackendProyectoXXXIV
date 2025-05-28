@@ -6,14 +6,10 @@ import com.xxxiv.model.Viaje;
 import com.xxxiv.model.enums.Localidad;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Data
 @NoArgsConstructor
-@Getter
-@Setter
 public class ViajeMostrarDTO {
 
 	private Integer id;

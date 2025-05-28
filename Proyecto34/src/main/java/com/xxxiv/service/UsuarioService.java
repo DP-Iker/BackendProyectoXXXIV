@@ -55,39 +55,6 @@ public class UsuarioService {
 	}
 
 	// POST
-	/**
-	 * Crea un usuario en la BD
-	 * 
-	 * @param usuario     Nombre de usuario
-	 * @param contrasenya Contraseña
-	 * @param email       Correo electrónico
-	 * @return Usuario creado
-	 */
-	public Usuario crearUsuario(String usuario, String contrasenya, String email) {
-		// Verifica que el usuario es único
-		if (usuarioRepository.existsByUsuario(usuario)) {
-			throw new IllegalArgumentException("El nombre de usuario ya está en uso.");
-		}
-
-		// Verifica que el email es único
-		if (usuarioRepository.existsByEmail(email)) {
-			throw new IllegalArgumentException("El email ya está en uso.");
-		}
-
-		// Hashea la contraseña
-		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		String contrasenyaHasheada = passwordEncoder.encode(contrasenya);
-
-		// Crea el usuario
-		Usuario nuevoUsuario = new Usuario();
-		nuevoUsuario.setUsuario(usuario);
-		nuevoUsuario.setContrasenya(contrasenyaHasheada);
-		nuevoUsuario.setEmail(email);
-		nuevoUsuario.setEstaBloqueado(false);
-		nuevoUsuario.setCreatedAt(java.time.LocalDateTime.now());
-
-		return usuarioRepository.save(nuevoUsuario);
-	}
 
 //	public void enviarCodigo(String email) throws EmailException {
 //		try {
