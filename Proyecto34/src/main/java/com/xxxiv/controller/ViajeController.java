@@ -25,10 +25,12 @@ import com.xxxiv.service.VehiculoService;
 import com.xxxiv.service.ViajeService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/viajes")
+@SecurityRequirement(name = "bearerAuth")
 public class ViajeController {
 
 	private final ViajeService viajeService;

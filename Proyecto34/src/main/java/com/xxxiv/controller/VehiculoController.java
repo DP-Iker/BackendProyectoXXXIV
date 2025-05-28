@@ -27,6 +27,7 @@ import com.xxxiv.service.VehiculoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +38,7 @@ public class VehiculoController {
 
 	private final VehiculoService vehiculoService;
 
+	// GET
 	@GetMapping
 	@Operation(summary = "Devuelve todos los vehículos", description = "Devuelve todos los vehículos que hay en la BD")
 	@Parameters({ @Parameter(name = "page", description = "Número de página", example = "0"),
@@ -79,7 +81,15 @@ public class VehiculoController {
 		return vehiculoService.getUbicaciones(tipo);
 	}
 
+	@GetMapping("/localidades")
+	@Operation(summary = "Obtiene todas las localidades dónde hay vehículos disponibles", description = "Devuelve las localidades en la que hay vehículos con estado DISPONIBLE")
+	public List<Localidad> getLocalidades() {
+		return vehiculoService.getLocalidadesDisponibles();
+	}
+	
+	// PATCH
 	@PatchMapping("/{id}/ubicacion")
+	@SecurityRequirement(name = "bearerAuth")
 	@Operation(summary = "Actualiza la ubicación del vehículo", description = "Usado por mantenimiento o reubicación")
 	public ResponseEntity<Void> actualizarUbicacion(@PathVariable int id,
 			@RequestBody @Valid UbicacionVehiculosDTO dto) {
@@ -92,11 +102,5 @@ public class VehiculoController {
 		} else {
 			return ResponseEntity.badRequest().build();
 		}
-	}
-
-	@GetMapping("/localidades")
-	@Operation(summary = "Obtiene todas las localidades dónde hay vehículos disponibles", description = "Devuelve las localidades en la que hay vehículos con estado DISPONIBLE")
-	public List<Localidad> getLocalidades() {
-		return vehiculoService.getLocalidadesDisponibles();
 	}
 }

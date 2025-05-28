@@ -2,6 +2,9 @@ package com.xxxiv.controller;
 
 import com.xxxiv.model.Carnet;
 import com.xxxiv.service.CarnetService;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/carnets")
+@SecurityRequirement(name = "bearerAuth")
 public class CarnetController {
 
 	@Autowired
