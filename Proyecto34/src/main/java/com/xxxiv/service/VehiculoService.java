@@ -4,16 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.xxxiv.dto.VehiculoEnUsoDTO;
+import com.xxxiv.model.SeguimientoRuta;
+import com.xxxiv.model.Viaje;
+import com.xxxiv.repository.SeguimientoRutaRepository;
+import com.xxxiv.repository.ViajeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.xxxiv.dto.CrearVehiculoDTO;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.Estado;
+import com.xxxiv.model.enums.Localidad;
 import com.xxxiv.model.enums.Tipo;
 import com.xxxiv.repository.VehiculoRepository;
 import com.xxxiv.specifications.VehiculoSpecification;
@@ -23,11 +30,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class VehiculoService {
-	
 	private final VehiculoRepository vehiculoRepository;
-	private final WebClientService webClientService;
+	private final ViajeRepository viajeRepository;
+	private final SeguimientoRutaRepository rutaRepository;
 
-	// GET
 	/**
 	 * Busca los vehículos según el filtro y los devuelve en página
 	 * 
@@ -47,7 +53,7 @@ public class VehiculoService {
 	 * @return Devuelve el vehiculo o un 404
 	 */
 	public Optional<Vehiculo> buscarPorId(int id) {
-	    return vehiculoRepository.findById(id);
+		return vehiculoRepository.findById(id);
 	}
 
 	/**
@@ -59,7 +65,6 @@ public class VehiculoService {
 		// Busca todos los vehiculos y los guarda en una lista
 		List<Vehiculo> vehiculosDisponibles = vehiculoRepository.findByEstado(Estado.DISPONIBLE);
 		
-		// Si ha filtrado por el tipo, solo devuelve los disponibles de ese tipo
 		if (tipo != null) {
 			vehiculosDisponibles = vehiculoRepository.findByEstadoAndTipo(Estado.DISPONIBLE, tipo);
 		} else {
@@ -89,62 +94,68 @@ public class VehiculoService {
 	 * 
 	 * @return Devuelve una lista de localidades
 	 */
-	public List<String> getLocalidadesDisponibles() {
+	public List<Localidad> getLocalidadesDisponibles() {
 		return vehiculoRepository.buscarLocalidadesDisponibles(Estado.DISPONIBLE);
 	}
-	
-	/**
-	 * Busca todas las localidades dónde hay un vehículo disponible
-	 * 
-	 * @return Devuelve una lista de localidades
-	 */
-	public List<String> getMarcasDisponibles() {
-		return vehiculoRepository.buscarMarcasDisponibles(Estado.DISPONIBLE);
-	}
-	
-	// POST
-	public Vehiculo crearVehiculo(CrearVehiculoDTO dto) {
-	    Vehiculo vehiculo = new Vehiculo();
-	    vehiculo.setMarca(dto.getMarca());
-	    vehiculo.setModelo(dto.getModelo());
-	    vehiculo.setImagen(dto.getImagen());
-	    vehiculo.setKilometraje(dto.getKilometraje());
-	    vehiculo.setUltimaRevision(dto.getUltimaRevision());
-	    vehiculo.setAutonomia(dto.getAutonomia());
-	    vehiculo.setEstado(dto.getEstado() != null ? dto.getEstado() : Estado.DISPONIBLE);
-	    vehiculo.setLatitud(dto.getLatitud());
-	    vehiculo.setLongitud(dto.getLongitud());
-	    vehiculo.setLocalidad(dto.getLocalidad());
-	    vehiculo.setPuertas(dto.getPuertas());
-	    vehiculo.setTipo(dto.getTipo());
-	    vehiculo.setEsAccesible(dto.isEsAccesible());
 
-	    return vehiculoRepository.save(vehiculo);
+	public Vehiculo save(Vehiculo vehiculo) {
+		return vehiculoRepository.save(vehiculo);
 	}
 
-	
-	
-	// PATCH
-	/**
-	 * Actualiza la ubicacion del vehículo (Consulta a una API externa la localidad más cercana)
-	 * @param id ID del vehículo
-	 * @param latitud Nueva latitud
-	 * @param longitud Nueva longitud
-	 * @return Devuelve un String si ha funcionado
-	 */
-	public String actualizarUbicacion(int id, double latitud, double longitud) {
-		String localidad = webClientService.obtenerLocalidad(latitud, longitud);
-		
-		Vehiculo vehiculo = buscarPorId(id)
-				.orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado"));;
-		
-		// Modifica el vehículo
+	public boolean actualizarUbicacion(int idVehiculo, Double latitud, Double longitud, Localidad localidad) {
+		if (latitud == null || longitud == null)
+			return false;
+
+		Vehiculo vehiculo = vehiculoRepository.findById(idVehiculo)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vehículo no encontrado"));
+
 		vehiculo.setLatitud(latitud);
 		vehiculo.setLongitud(longitud);
-		vehiculo.setLocalidad(localidad);
-		
+
+		if (localidad != null) {
+			vehiculo.setLocalidad(localidad);
+		}
+
 		vehiculoRepository.save(vehiculo);
-		
-		return "Ubicación del vehículo "+ id +" actualizada";
+		return true;
+	}
+
+
+	public List<VehiculoEnUsoDTO> obtenerVehiculosEnUsoConRuta() {
+
+		// Paso 1: Obtener la lista de viajes que están en curso (fechaFin == null)
+		List<Viaje> viajesEnCurso = viajeRepository.findByFechaFinIsNull();
+
+		// Paso 2: Mapear cada viaje a su DTO con vehículo y ruta
+		List<VehiculoEnUsoDTO> resultado = new ArrayList<>();
+
+		for (Viaje viaje : viajesEnCurso) {
+			// Paso 3: Obtener el vehículo del viaje
+			Vehiculo vehiculo = viaje.getVehiculo();
+
+			// Paso 4: Consultar los puntos de ruta ordenados por índice para este viaje
+			List<SeguimientoRuta> puntosRuta = rutaRepository.findByViajeIdOrderByIdPuntoIndexAsc(viaje.getId());
+
+			// Paso 5: Mapear cada punto de ruta a un DTO simple con latitud, longitud y velocidad
+			List<RutaPuntoDTO> rutaDTO = new ArrayList<>();
+			for (SeguimientoRuta punto : puntosRuta) {
+				RutaPuntoDTO dto = new RutaPuntoDTO(punto.getLatitud(), punto.getLongitud(), punto.getVelocidad());
+				rutaDTO.add(dto);
+			}
+
+			// Paso 6: Construir el DTO final con los datos del vehículo y su ruta
+			VehiculoEnUsoDTO vehiculoDTO = new VehiculoEnUsoDTO(
+					vehiculo.getId(),
+					vehiculo.getMarca(),
+					vehiculo.getModelo(),
+					rutaDTO
+			);
+
+			// Paso 7: Añadir el DTO a la lista resultado
+			resultado.add(vehiculoDTO);
+		}
+
+		// Paso 8: Devolver la lista de vehículos en uso con sus rutas
+		return resultado;
 	}
 }
