@@ -4,6 +4,8 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.xxxiv.model.enums.Estado;
+import com.xxxiv.model.enums.EstadoCarnet;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,4 +40,11 @@ public class Carnet {
     private LocalDate fechaEmision;
 
     private LocalDate fechaCaducidad;
+
+    @Column(length = 45)
+    private String imagenUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false)
+    private EstadoCarnet estado = EstadoCarnet.PENDIENTE;
 }

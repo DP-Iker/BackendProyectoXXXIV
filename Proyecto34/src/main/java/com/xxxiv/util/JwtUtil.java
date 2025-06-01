@@ -17,7 +17,7 @@ public class JwtUtil {
 	@Value("${jwt.secretkey}")
 	protected String secretKeyEnv;
 
-	@Value("${jwt.expiration-ms:3600000}") // default: 1 hora
+	@Value("${jwt.expiration-ms:259200000}") // default: 1 hora
 	protected long expirationMs;
 
 	private SecretKey secretKey;
