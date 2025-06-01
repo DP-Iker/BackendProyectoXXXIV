@@ -58,11 +58,11 @@ public class VehiculoController {
 			@Parameter(name = "sort", description = "Ordenamiento (campo,dirección). Ej: id,asc o usuario,desc", example = "id,asc") })
 	public ResponseEntity<Page<Vehiculo>> getTodosVehiculos(@RequestParam(required = false) String marca,
 			@RequestParam(required = false) Integer kilometraje,
-			@RequestParam(required = false) LocalDate ultimaRevision, 
+			@RequestParam(required = false) LocalDate ultimaRevision,
 			@RequestParam(required = false) Integer autonomia,
-			@RequestParam(required = false) Estado estado, 
+			@RequestParam(required = false) Estado estado,
 			@RequestParam(required = false) String localidad,
-			@RequestParam(required = false) Boolean esAccesible, 
+			@RequestParam(required = false) Boolean esAccesible,
 			@RequestParam(required = false) Puertas puertas,
 			@RequestParam(required = false) Tipo tipo, Pageable pageable) {
 		int maxPageSize = 50;
@@ -83,7 +83,7 @@ public class VehiculoController {
 		Page<Vehiculo> vehiculos = vehiculoService.buscarVehiculos(filtro, safePageable);
 		return ResponseEntity.ok(vehiculos);
 	}
-	
+
 	@GetMapping
 	@Operation(summary = "Devuelve todos los vehículos que puedan ver los usuarios", description = "Devuelve todos los vehículos que hay en la BD aptos para que los vean cualquier usuario")
 	@Parameters({ @Parameter(name = "page", description = "Número de página", example = "0"),
@@ -93,7 +93,7 @@ public class VehiculoController {
 			@RequestParam(required = false) Integer kilometraje,
 			@RequestParam(required = false) Integer autonomia,
 			@RequestParam(required = false) String localidad,
-			@RequestParam(required = false) Boolean esAccesible, 
+			@RequestParam(required = false) Boolean esAccesible,
 			@RequestParam(required = false) Puertas puertas,
 			@RequestParam(required = false) Tipo tipo, Pageable pageable) {
 		int maxPageSize = 50;
@@ -125,7 +125,7 @@ public class VehiculoController {
 	@Operation(summary = "Obtiene la ubicación de vehículos disponibles", description = "Devuelve la latitud y longitud de todos los vehículos con estado DISPONIBLE, se puede indicar el tipo opcionalmente")
 	public ResponseEntity<List<UbicacionVehiculosDTO>> getUbicacion(@RequestParam(required = false) Tipo tipo) {
 		List<UbicacionVehiculosDTO> respuesta = vehiculoService.getUbicaciones(tipo);
-	
+
 		return ResponseEntity.ok(respuesta);
 	}
 
@@ -133,7 +133,7 @@ public class VehiculoController {
 	@Operation(summary = "Obtiene todas las localidades dónde hay vehículos disponibles", description = "Devuelve las localidades en la que hay vehículos con estado DISPONIBLE")
 	public ResponseEntity<List<String>> getLocalidades() {
 		List<String> respuesta = vehiculoService.getLocalidadesDisponibles();
-		
+
 		return ResponseEntity.ok(respuesta);
 	}
 
@@ -149,7 +149,7 @@ public class VehiculoController {
         List<VehiculoEnUsoDTO> vehi = vehiculoService.obtenerVehiculosEnUsoConRuta();
         return ResponseEntity.ok(vehi);
     }
-	
+
 	// POST
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@SecurityRequirement(name = "bearerAuth")
@@ -185,7 +185,7 @@ public class VehiculoController {
 	@Operation(summary = "Actualiza la ubicación de un vehículo", description = "Modifica la latitud y longitud de un vehículo en base a su ID")
 	public ResponseEntity<String> actualizarUbicacion(@PathVariable int id, @RequestBody @Valid ActualizarUbicacionDTO dto) {
 		String respuesta = vehiculoService.actualizarUbicacion(id, dto.getLatitud(), dto.getLongitud());
-		
+
 		return ResponseEntity.ok(respuesta);
 	}
 }
