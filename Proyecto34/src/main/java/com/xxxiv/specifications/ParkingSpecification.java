@@ -1,30 +1,44 @@
 package com.xxxiv.specifications;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.data.jpa.domain.Specification;
-
 import com.xxxiv.dto.FiltroParkingDTO;
 import com.xxxiv.model.Parking;
+import org.springframework.data.jpa.domain.Specification;
 
-import jakarta.persistence.criteria.Predicate;
+import java.util.Optional;
 
 public class ParkingSpecification {
 
-    public static Specification<Parking> buildSpecification(FiltroParkingDTO filtro) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
+    public static Specification<Parking> nombreContiene(String nombre) {
+        return (root, query, cb) ->
+                nombre == null
+                        ? null
+                        : cb.like(cb.lower(root.get("name")), "%" + nombre.toLowerCase() + "%");
+    }
 
-            if (filtro.getNombre() != null && !filtro.getNombre().isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("name")), "%" + filtro.getNombre().toLowerCase() + "%"));
-            }
+    public static Specification<Parking> capacidadMinima(Integer min) {
+        return (root, query, cb) ->
+                min == null
+                        ? null
+                        : cb.greaterThanOrEqualTo(root.get("capacity"), min);
+    }
 
-            if (filtro.getCapacidadMinima() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("capacity"), filtro.getCapacidadMinima()));
-            }
+    public static Specification<Parking> capacidadMaxima(Integer max) {
+        return (root, query, cb) ->
+                max == null
+                        ? null
+                        : cb.lessThanOrEqualTo(root.get("capacity"), max);
+    }
 
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+    public static Specification<Parking> buildSpecification(FiltroParkingDTO filter) {
+        return Specification.where(
+                        Optional.ofNullable(filter.getName())
+                                .map(ParkingSpecification::nombreContiene)
+                                .orElse(null))
+                .and(Optional.ofNullable(filter.getCapacidadMinima())
+                        .map(ParkingSpecification::capacidadMinima)
+                        .orElse(null))
+                .and(Optional.ofNullable(filter.getCapacidadMaxima())
+                        .map(ParkingSpecification::capacidadMaxima)
+                        .orElse(null));
     }
 }
