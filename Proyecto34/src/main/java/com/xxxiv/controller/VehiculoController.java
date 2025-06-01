@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.xxxiv.dto.VehiculoEnUsoDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.xxxiv.dto.ActualizarUbicacionDTO;
 import com.xxxiv.dto.CrearVehiculoDTO;
-import com.xxxiv.dto.EditarVehiculoDTO;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
@@ -137,14 +136,19 @@ public class VehiculoController {
 		
 		return ResponseEntity.ok(respuesta);
 	}
-	
+
 	@GetMapping("/marcas")
 	@Operation(summary = "Obtiene todas las marcas de los vehículos disponibles", description = "Devuelve las marcas de los vehículos con estado DISPONIBLE")
 	public ResponseEntity<List<String>> getMarcas() {
 		List<String> respuesta = vehiculoService.getMarcasDisponibles();
-		
+
 		return ResponseEntity.ok(respuesta);
 	}
+    @GetMapping("/en-uso")
+    public ResponseEntity<List<VehiculoEnUsoDTO>> getVehiculosEnUsoConRuta() {
+        List<VehiculoEnUsoDTO> vehi = vehiculoService.obtenerVehiculosEnUsoConRuta();
+        return ResponseEntity.ok(vehi);
+    }
 	
 	// POST
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -156,7 +160,7 @@ public class VehiculoController {
 		    @RequestPart("imagen") MultipartFile imagen) throws IOException {
 		String imagenUrl = imgurService.subirImagen(imagen.getBytes());
 	    Vehiculo vehiculoCreado = vehiculoService.crearVehiculo(dto, imagenUrl);
-	    
+
 	    return new ResponseEntity<>(vehiculoCreado, HttpStatus.CREATED);
 	}
 
@@ -176,7 +180,7 @@ public class VehiculoController {
 	    return ResponseEntity.noContent().build();
 	}
 
-	
+
 	@PatchMapping("{id}/ubicacion")
 	@Operation(summary = "Actualiza la ubicación de un vehículo", description = "Modifica la latitud y longitud de un vehículo en base a su ID")
 	public ResponseEntity<String> actualizarUbicacion(@PathVariable int id, @RequestBody @Valid ActualizarUbicacionDTO dto) {

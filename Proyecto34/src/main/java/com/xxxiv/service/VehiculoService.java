@@ -4,13 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.xxxiv.dto.VehiculoEnUsoDTO;
+import com.xxxiv.model.SeguimientoRuta;
+import com.xxxiv.model.Viaje;
+import com.xxxiv.repository.SeguimientoRutaRepository;
+import com.xxxiv.repository.ViajeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.xxxiv.dto.CrearVehiculoDTO;
-import com.xxxiv.dto.EditarVehiculoDTO;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
@@ -26,8 +30,9 @@ import lombok.RequiredArgsConstructor;
 public class VehiculoService {
 	
 	private final VehiculoRepository vehiculoRepository;
-	private final LocalidadService webClientService;
-
+	private final ViajeRepository viajeRepository;
+	private final SeguimientoRutaRepository rutaRepository;
+    private final LocalidadService webClientService;
 	// GET
 	/**
 	 * Busca los vehículos según el filtro y los devuelve en página
@@ -106,7 +111,7 @@ public class VehiculoService {
 	// POST
 	/**
 	 * Crea un vehículo
-	 * 
+	 *
 	 * @param dto DTO con los campos para crear un vehículo
 	 * @return Devuelve el vehículo
 	 */
@@ -124,7 +129,7 @@ public class VehiculoService {
 	    vehiculo.setPuertas(dto.getPuertas());
 	    vehiculo.setTipo(dto.getTipo());
 	    vehiculo.setEsAccesible(dto.isEsAccesible());
-	    
+
 	    vehiculo.setImagen(imagenUrl);
 
 	    return vehiculoRepository.save(vehiculo);
@@ -153,10 +158,10 @@ public class VehiculoService {
 	    vehiculoRepository.save(vehiculo);
 	}
 
-	
+
 	/**
 	 * Actualiza la ubicacion del vehículo (Consulta a una API externa la localidad más cercana)
-	 * 
+	 *
 	 * @param id ID del vehículo
 	 * @param latitud Nueva latitud
 	 * @param longitud Nueva longitud
@@ -164,7 +169,7 @@ public class VehiculoService {
 	 */
 	public String actualizarUbicacion(int id, double latitud, double longitud) {
 		String localidad = webClientService.obtenerLocalidad(latitud, longitud);
-		
+
 		Vehiculo vehiculo = buscarPorId(id)
 				.orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado"));
 		
@@ -174,7 +179,45 @@ public class VehiculoService {
 		vehiculo.setLocalidad(localidad);
 		
 		vehiculoRepository.save(vehiculo);
-		
-		return "Ubicación del vehículo "+ id +" actualizada";
+		return true;
+	}
+
+
+	public List<VehiculoEnUsoDTO> obtenerVehiculosEnUsoConRuta() {
+
+		// Paso 1: Obtener la lista de viajes que están en curso (fechaFin == null)
+		List<Viaje> viajesEnCurso = viajeRepository.findByFechaFinIsNull();
+
+		// Paso 2: Mapear cada viaje a su DTO con vehículo y ruta
+		List<VehiculoEnUsoDTO> resultado = new ArrayList<>();
+
+		for (Viaje viaje : viajesEnCurso) {
+			// Paso 3: Obtener el vehículo del viaje
+			Vehiculo vehiculo = viaje.getVehiculo();
+
+			// Paso 4: Consultar los puntos de ruta ordenados por índice para este viaje
+			List<SeguimientoRuta> puntosRuta = rutaRepository.findByViajeIdOrderByIdPuntoIndexAsc(viaje.getId());
+
+			// Paso 5: Mapear cada punto de ruta a un DTO simple con latitud, longitud y velocidad
+			List<RutaPuntoDTO> rutaDTO = new ArrayList<>();
+			for (SeguimientoRuta punto : puntosRuta) {
+				RutaPuntoDTO dto = new RutaPuntoDTO(punto.getLatitud(), punto.getLongitud(), punto.getVelocidad());
+				rutaDTO.add(dto);
+			}
+
+			// Paso 6: Construir el DTO final con los datos del vehículo y su ruta
+			VehiculoEnUsoDTO vehiculoDTO = new VehiculoEnUsoDTO(
+					vehiculo.getId(),
+					vehiculo.getMarca(),
+					vehiculo.getModelo(),
+					rutaDTO
+			);
+
+			// Paso 7: Añadir el DTO a la lista resultado
+			resultado.add(vehiculoDTO);
+		}
+
+		// Paso 8: Devolver la lista de vehículos en uso con sus rutas
+		return resultado;
 	}
 }
