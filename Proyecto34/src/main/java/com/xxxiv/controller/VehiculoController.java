@@ -3,6 +3,7 @@ package com.xxxiv.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.xxxiv.dto.VehiculoEnUsoDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -86,7 +87,14 @@ public class VehiculoController {
 	public List<Localidad> getLocalidades() {
 		return vehiculoService.getLocalidadesDisponibles();
 	}
-	
+
+
+	@GetMapping("/en-uso")
+	public ResponseEntity<List<VehiculoEnUsoDTO>> getVehiculosEnUsoConRuta() {
+		List<VehiculoEnUsoDTO> vehi = vehiculoService.obtenerVehiculosEnUsoConRuta();
+		return ResponseEntity.ok(vehi);
+	}
+
 	// PATCH
 	@PatchMapping("/{id}/ubicacion")
 	@SecurityRequirement(name = "bearerAuth")

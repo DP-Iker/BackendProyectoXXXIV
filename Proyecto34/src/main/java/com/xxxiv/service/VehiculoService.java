@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.xxxiv.dto.VehiculoEnUsoDTO;
+import com.xxxiv.model.SeguimientoRuta;
+import com.xxxiv.model.Viaje;
+import com.xxxiv.repository.SeguimientoRutaRepository;
+import com.xxxiv.repository.ViajeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,6 +31,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class VehiculoService {
 	private final VehiculoRepository vehiculoRepository;
+	private final ViajeRepository viajeRepository;
+	private final SeguimientoRutaRepository rutaRepository;
 
 	/**
 	 * Busca los vehículos según el filtro y los devuelve en página
@@ -113,4 +120,42 @@ public class VehiculoService {
 		return true;
 	}
 
+
+	public List<VehiculoEnUsoDTO> obtenerVehiculosEnUsoConRuta() {
+
+		// Paso 1: Obtener la lista de viajes que están en curso (fechaFin == null)
+		List<Viaje> viajesEnCurso = viajeRepository.findByFechaFinIsNull();
+
+		// Paso 2: Mapear cada viaje a su DTO con vehículo y ruta
+		List<VehiculoEnUsoDTO> resultado = new ArrayList<>();
+
+		for (Viaje viaje : viajesEnCurso) {
+			// Paso 3: Obtener el vehículo del viaje
+			Vehiculo vehiculo = viaje.getVehiculo();
+
+			// Paso 4: Consultar los puntos de ruta ordenados por índice para este viaje
+			List<SeguimientoRuta> puntosRuta = rutaRepository.findByViajeIdOrderByIdPuntoIndexAsc(viaje.getId());
+
+			// Paso 5: Mapear cada punto de ruta a un DTO simple con latitud, longitud y velocidad
+			List<RutaPuntoDTO> rutaDTO = new ArrayList<>();
+			for (SeguimientoRuta punto : puntosRuta) {
+				RutaPuntoDTO dto = new RutaPuntoDTO(punto.getLatitud(), punto.getLongitud(), punto.getVelocidad());
+				rutaDTO.add(dto);
+			}
+
+			// Paso 6: Construir el DTO final con los datos del vehículo y su ruta
+			VehiculoEnUsoDTO vehiculoDTO = new VehiculoEnUsoDTO(
+					vehiculo.getId(),
+					vehiculo.getMarca(),
+					vehiculo.getModelo(),
+					rutaDTO
+			);
+
+			// Paso 7: Añadir el DTO a la lista resultado
+			resultado.add(vehiculoDTO);
+		}
+
+		// Paso 8: Devolver la lista de vehículos en uso con sus rutas
+		return resultado;
+	}
 }
