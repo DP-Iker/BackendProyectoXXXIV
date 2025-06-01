@@ -17,11 +17,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/noticias")
@@ -34,6 +37,10 @@ public class NoticiaController {
     @Autowired
     UsuarioService usuarioService;
 
+    /**
+     * GET /api/noticias
+     * Devuelve todas las noticias.
+     */
     @GetMapping
     @Operation(
             summary = "Devuelve todas las noticias",
@@ -55,26 +62,33 @@ public class NoticiaController {
             @RequestParam(required = false) LocalDateTime createdAt,
             Pageable pageable
     ) {
+        // 1) Controlar tamaño máximo por página
         int maxPageSize = 50;
         int size = pageable.getPageSize() > maxPageSize
                 ? maxPageSize
                 : pageable.getPageSize();
         Pageable safePageable = PageRequest.of(pageable.getPageNumber(), size, pageable.getSort());
 
-
+        // 2) Construir el DTO de filtro
         FiltroNoticiasDTO filtro = new FiltroNoticiasDTO();
         filtro.setTitulo(titulo);
         filtro.setUsuarioId(usuarioId);
         filtro.setIdiomaCodigo(idiomaCodigo);
         filtro.setCreatedAt(createdAt);
 
+        // 3) Invocar el servicio para obtener Page<Noticia>
         Page<Noticia> pageEntidades = noticiaService.buscarNoticias(filtro, safePageable);
+
+        // 4) Mapear cada Noticia a NoticiaDTO
         Page<NoticiaDTO> pageDto = pageEntidades.map(NoticiaDTO::fromEntity);
 
         return ResponseEntity.ok(pageDto);
     }
 
-
+    /**
+     * GET /api/noticias/{id}
+     * Recupera una noticia por su ID.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Noticia> obtenerPorId(@PathVariable Integer id) {
         try {
@@ -85,17 +99,46 @@ public class NoticiaController {
         }
     }
 
+    /**
+     * POST /api/noticias
+     * Crea una nueva noticia.
+     * Se espera un JSON como:
+     * {
+     *   "titulo": "...",
+     *   "contenido": "...",
+     *   "idiomaCodigo": "ESP",
+     *   "usuario": { "id": 42 }
+     * }
+     * O bien se puede enviar sólo { "titulo": "...", "contenido": "...", "idiomaCodigo": "ESP", "usuarioId": 42 }
+     */
+//    @PostMapping
+//    public ResponseEntity<Noticia> crear(@RequestBody Noticia payload) {
+//        try {
+//            // Si en el JSON se envía sólo usuario.id (es decir, payload.getUsuario().getId()), lo tomamos:
+//            String usuarioUsername = payload.getUsuario() != null ? payload.getUsuario().getUsuario() : null;
+//            if (usuarioUsername == null) {
+//                return ResponseEntity.badRequest().build();
+//            }
+//            // Creamos la entidad nueva:
+//            Noticia creada = noticiaService.crearNoticia(payload, usuarioUsername);
+//            return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+//        } catch (EntityNotFoundException ex) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+//        }
+//    }
     @PostMapping
     public ResponseEntity<Noticia> crear(@RequestBody CrearNoticiaDTO dto) {
         try {
+            // Validar campos mínimos necesarios
             if (dto.getUsuario() == null || dto.getUsuario().isBlank()) {
                 return ResponseEntity.badRequest().build();
             }
 
+            // Buscar usuario por su username (o correo, según corresponda)
             Usuario usuario = usuarioService.buscarPorUsuario(dto.getUsuario())
                     .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
-
+            // Convertir el DTO a entidad Noticia
             Noticia noticia = new Noticia();
             noticia.setTitulo(dto.getTitulo());
             noticia.setContenido(dto.getContenido());
@@ -103,9 +146,11 @@ public class NoticiaController {
             noticia.setCreatedAt(dto.getFecha());
             noticia.setUsuario(usuario);
 
+            // Guardar la noticia
             Noticia creada = noticiaService.crearNoticia(noticia, usuario.getUsuario());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+
         } catch (IllegalArgumentException e) {
             // Si el idioma es inválido, por ejemplo
             return ResponseEntity.badRequest().build();
@@ -114,20 +159,27 @@ public class NoticiaController {
         }
     }
 
-
+    /**
+     * PUT /api/noticias/{id}
+     * Actualiza la noticia con id={id}.
+     * JSON esperado similar a POST; se debe enviar ID del usuario en el que se editará (o null para dejar igual).
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Noticia> actualizar(
             @PathVariable Integer id,
             @RequestBody CrearNoticiaDTO dto) {
-        try {
 
+        try {
+            // Validar campos mínimos necesarios
             if (dto.getUsuario() == null || dto.getUsuario().isBlank()) {
                 return ResponseEntity.badRequest().build();
             }
 
+            // Buscar usuario por su username (o correo, según corresponda)
             Usuario usuario = usuarioService.buscarPorUsuario(dto.getUsuario())
                     .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
+            // Convertir el DTO a entidad Noticia
             Noticia noticia = new Noticia();
             noticia.setTitulo(dto.getTitulo());
             noticia.setContenido(dto.getContenido());
@@ -135,17 +187,23 @@ public class NoticiaController {
             noticia.setCreatedAt(dto.getFecha());
             noticia.setUsuario(usuario);
 
+            // Guardar la noticia
             Noticia update = noticiaService.actualizarNoticia(id, noticia, usuario.getUsuario());
 
             return ResponseEntity.ok(update);
 
         } catch (IllegalArgumentException e) {
+            // Si el idioma es inválido, por ejemplo
             return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
+    /**
+     * DELETE /api/noticias/{id}
+     * Elimina la noticia con id={id}.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         try {

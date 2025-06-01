@@ -24,12 +24,6 @@ public class Parking {
 
     @Column(nullable = false)
     private Integer capacity;
-    
-    @Column(name = "longitud")
-    private Integer longitud;
-    
-    @Column(name = "latitud")
-    private Integer latitud;
 
     @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "parking_id")
