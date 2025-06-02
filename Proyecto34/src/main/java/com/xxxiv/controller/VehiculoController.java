@@ -154,6 +154,7 @@ public class VehiculoController {
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping
 	@Operation(summary = "Crea un nuevo vehículo", description = "Crea un vehículo con los datos proporcionados (solo accesible por administradores)")
 	public ResponseEntity<Vehiculo> crearVehiculo(
 			@RequestPart("vehiculo") @Valid CrearVehiculoDTO dto,
