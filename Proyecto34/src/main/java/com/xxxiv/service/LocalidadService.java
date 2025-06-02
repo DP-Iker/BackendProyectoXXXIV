@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class WebClientService {
+public class LocalidadService {
 
     private final WebClient localidadWebClient; // Spring inyectará el único bean WebClient
 

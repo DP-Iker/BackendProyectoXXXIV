@@ -34,13 +34,51 @@ public class Viaje {
     @Column(name = "fecha_fin")
     private LocalDate fechaFin;
 
-   
-    @Column(name = "km_recorridos")
-    private Integer kmRecorridos;
+	@Column(name = "km_recorridos")
+	private Integer kmRecorridos;
 
+	@Column(name = "latitud")
+	private Double latitud;
+
+	@Column(name = "longitud")
+	private Double longitud;
+
+	@Column(name = "precio")
+	private Double precio;
 
     @Convert(converter = CoordinateListConverter.class)
     @Column(columnDefinition = "JSON", nullable = false)
     private List<Coordinate> cods;
+
+	// Método para calcular el precio del viaje
+	public Double calcularPrecio() {
+		if (kmRecorridos == null || vehiculo == null || vehiculo.getTipo() == null) {
+			return 0.0;
+		}
+		double precioPorKm;
+		switch (vehiculo.getTipo()) {
+		case TURISMO:
+			precioPorKm = 0.5;
+			break;
+		case SUV:
+			precioPorKm = 0.7;
+			break;
+		case BIPLAZA:
+			precioPorKm = 0.4;
+			break;
+		case MONOVOLUMEN:
+			precioPorKm = 0.6;
+			break;
+		default:
+			precioPorKm = 0.5;
+		}
+		return kmRecorridos * precioPorKm;
+	}
+
+	public void finalizarViaje(LocalDate fechaFin, Integer kmRecorridos) {
+		this.setFechaFin(fechaFin);
+		this.setKmRecorridos(kmRecorridos);
+		this.setPrecio(calcularPrecio());
+	}
 
 }

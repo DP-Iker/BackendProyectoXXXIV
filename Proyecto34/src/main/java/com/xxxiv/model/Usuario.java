@@ -41,6 +41,9 @@ public class Usuario {
 	@Column(nullable = false, unique = true, length = 40)
 	private String email;
 	
+	@Column(length = 100)
+    private String foto;
+	
 	@Column(nullable = false)
 	private boolean esAdministrador;
 	

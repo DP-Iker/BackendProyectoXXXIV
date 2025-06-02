@@ -21,9 +21,6 @@ public class CrearVehiculoDTO {
     @Size(max = 50)
     private String modelo;
 
-    @Size(max = 100)
-    private String imagen;
-
     @Min(value = 0, message = "El kilometraje no puede ser negativo")
     private int kilometraje;
 

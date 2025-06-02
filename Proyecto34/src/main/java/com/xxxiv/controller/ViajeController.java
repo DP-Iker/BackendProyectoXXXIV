@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -105,6 +106,15 @@ public class ViajeController {
 		}
 
 		return viajeService.save(viaje);
+	}
+
+	@PatchMapping("/{id}/finalizar")
+	public ResponseEntity<ViajeMostrarDTO> finalizarViaje(@PathVariable Integer id,
+			@RequestBody ViajeActualizarDTO dto) {
+
+		Viaje viajeFinalizado = viajeService.finalizarViaje(id, dto.getFechaFin(), dto.getKmRecorridos());
+
+		return ResponseEntity.ok(ViajeMostrarDTO.fromEntity(viajeFinalizado));
 	}
 
 	@PutMapping("/{id}")

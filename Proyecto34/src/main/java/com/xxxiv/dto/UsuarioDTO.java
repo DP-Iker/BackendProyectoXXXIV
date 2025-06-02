@@ -8,4 +8,5 @@ import lombok.NoArgsConstructor;
 public class UsuarioDTO {
 	private String username;
     private String email;
+    private String fotoUrl;
 }
