@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MultipartException;
 
 import io.swagger.v3.oas.annotations.Hidden;
 
@@ -23,5 +25,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errores);
     }
 
-    // Puedes manejar más excepciones aquí si quieres (ej: EntityNotFoundException, etc.)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleInvalidJson(HttpMessageNotReadableException ex) {
+        return ResponseEntity.badRequest().body("JSON inválido: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<String> handleMultipartError(MultipartException ex) {
+        return ResponseEntity.badRequest().body("Error con el archivo enviado: " + ex.getMessage());
+    }
 }

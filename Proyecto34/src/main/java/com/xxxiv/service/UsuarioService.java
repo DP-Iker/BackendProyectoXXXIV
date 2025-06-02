@@ -115,4 +115,18 @@ public class UsuarioService {
 		usuario.setEmail(email);
 		usuarioRepository.save(usuario);
 	}
+	
+	/**
+	 * Cambia la foto de perfil del usuario
+	 * 
+	 * @param nombreUsuario Nombre de usuario
+	 * @param email Email
+	 */
+	public void cambiarFotoPerfil(String nombreUsuario, String foto) {
+		Usuario usuario = usuarioRepository.findByUsuario(nombreUsuario)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID no encontrado"));
+		
+		usuario.setFoto(foto);
+		usuarioRepository.save(usuario);
+	}
 }

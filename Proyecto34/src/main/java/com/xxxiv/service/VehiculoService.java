@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.xxxiv.dto.CrearVehiculoDTO;
+import com.xxxiv.dto.EditarVehiculoDTO;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
@@ -25,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class VehiculoService {
 	
 	private final VehiculoRepository vehiculoRepository;
-	private final WebClientService webClientService;
+	private final LocalidadService webClientService;
 
 	// GET
 	/**
@@ -103,30 +104,59 @@ public class VehiculoService {
 	}
 	
 	// POST
-	public Vehiculo crearVehiculo(CrearVehiculoDTO dto) {
+	/**
+	 * Crea un vehículo
+	 * 
+	 * @param dto DTO con los campos para crear un vehículo
+	 * @return Devuelve el vehículo
+	 */
+	public Vehiculo crearVehiculo(CrearVehiculoDTO dto, String imagenUrl) {
 	    Vehiculo vehiculo = new Vehiculo();
 	    vehiculo.setMarca(dto.getMarca());
 	    vehiculo.setModelo(dto.getModelo());
-	    vehiculo.setImagen(dto.getImagen());
 	    vehiculo.setKilometraje(dto.getKilometraje());
 	    vehiculo.setUltimaRevision(dto.getUltimaRevision());
 	    vehiculo.setAutonomia(dto.getAutonomia());
-	    vehiculo.setEstado(dto.getEstado() != null ? dto.getEstado() : Estado.DISPONIBLE);
+	    vehiculo.setEstado(dto.getEstado() != null ? dto.getEstado() : Estado.EN_MANTENIMIENTO);
 	    vehiculo.setLatitud(dto.getLatitud());
 	    vehiculo.setLongitud(dto.getLongitud());
 	    vehiculo.setLocalidad(dto.getLocalidad());
 	    vehiculo.setPuertas(dto.getPuertas());
 	    vehiculo.setTipo(dto.getTipo());
 	    vehiculo.setEsAccesible(dto.isEsAccesible());
+	    
+	    vehiculo.setImagen(imagenUrl);
 
 	    return vehiculoRepository.save(vehiculo);
 	}
 
 	
-	
 	// PATCH
+	public void editarVehiculo(int id, EditarVehiculoDTO dto, String imagenUrl) {
+		Vehiculo vehiculo = buscarPorId(id)
+				.orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado"));
+
+	    if (dto.getMarca() != null) vehiculo.setMarca(dto.getMarca());
+	    if (dto.getModelo() != null) vehiculo.setModelo(dto.getModelo());
+	    if (dto.getKilometraje() != null) vehiculo.setKilometraje(dto.getKilometraje());
+	    if (dto.getUltimaRevision() != null) vehiculo.setUltimaRevision(dto.getUltimaRevision());
+	    if (dto.getAutonomia() != null) vehiculo.setAutonomia(dto.getAutonomia());
+	    if (dto.getEstado() != null) vehiculo.setEstado(dto.getEstado());
+	    if (dto.getLatitud() != null) vehiculo.setLatitud(dto.getLatitud());
+	    if (dto.getLongitud() != null) vehiculo.setLongitud(dto.getLongitud());
+	    if (dto.getLocalidad() != null) vehiculo.setLocalidad(dto.getLocalidad());
+	    if (dto.getTipo() != null) vehiculo.setTipo(dto.getTipo());
+	    if (dto.getPuertas() != null) vehiculo.setPuertas(dto.getPuertas());
+	    if (dto.getEsAccesible() != null) vehiculo.setEsAccesible(dto.getEsAccesible());
+	    if (imagenUrl != null) vehiculo.setImagen(imagenUrl);
+
+	    vehiculoRepository.save(vehiculo);
+	}
+
+	
 	/**
 	 * Actualiza la ubicacion del vehículo (Consulta a una API externa la localidad más cercana)
+	 * 
 	 * @param id ID del vehículo
 	 * @param latitud Nueva latitud
 	 * @param longitud Nueva longitud
@@ -136,7 +166,7 @@ public class VehiculoService {
 		String localidad = webClientService.obtenerLocalidad(latitud, longitud);
 		
 		Vehiculo vehiculo = buscarPorId(id)
-				.orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado"));;
+				.orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado"));
 		
 		// Modifica el vehículo
 		vehiculo.setLatitud(latitud);

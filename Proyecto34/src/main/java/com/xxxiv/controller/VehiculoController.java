@@ -1,5 +1,6 @@
 package com.xxxiv.controller;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,16 +18,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.xxxiv.dto.ActualizarUbicacionDTO;
 import com.xxxiv.dto.CrearVehiculoDTO;
+import com.xxxiv.dto.EditarVehiculoDTO;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.Estado;
 import com.xxxiv.model.enums.Puertas;
 import com.xxxiv.model.enums.Tipo;
+import com.xxxiv.service.ImgurService;
 import com.xxxiv.service.VehiculoService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +47,7 @@ import lombok.RequiredArgsConstructor;
 public class VehiculoController {
 
 	private final VehiculoService vehiculoService;
+	private final ImgurService imgurService;
 
 	// GET
 	@SecurityRequirement(name = "bearerAuth")
@@ -140,16 +147,36 @@ public class VehiculoController {
 	}
 	
 	// POST
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping
 	@Operation(summary = "Crea un nuevo vehículo", description = "Crea un vehículo con los datos proporcionados (solo accesible por administradores)")
-	public ResponseEntity<Vehiculo> crearVehiculo(@RequestBody @Valid CrearVehiculoDTO dto) {
-	    Vehiculo vehiculoCreado = vehiculoService.crearVehiculo(dto);
+	public ResponseEntity<Vehiculo> crearVehiculo(
+			@RequestPart("vehiculo") @Valid CrearVehiculoDTO dto,
+		    @RequestPart("imagen") MultipartFile imagen) throws IOException {
+		String imagenUrl = imgurService.subirImagen(imagen.getBytes());
+	    Vehiculo vehiculoCreado = vehiculoService.crearVehiculo(dto, imagenUrl);
+	    
 	    return new ResponseEntity<>(vehiculoCreado, HttpStatus.CREATED);
 	}
 
+
 	// PATCH
+	@PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@SecurityRequirement(name = "bearerAuth")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "Edita un vehículo")
+	public ResponseEntity<?> editarVehiculo(
+	        @PathVariable int id,
+	        @RequestPart(name = "vehiculo", required = false) EditarVehiculoDTO dto,
+	        @RequestPart(name = "imagen", required = false) MultipartFile imagen) throws IOException {
+
+		String imagenUrl = imgurService.subirImagen(imagen.getBytes());
+	    vehiculoService.editarVehiculo(id, dto, imagenUrl);
+	    return ResponseEntity.noContent().build();
+	}
+
+	
 	@PatchMapping("{id}/ubicacion")
 	@Operation(summary = "Actualiza la ubicación de un vehículo", description = "Modifica la latitud y longitud de un vehículo en base a su ID")
 	public ResponseEntity<String> actualizarUbicacion(@PathVariable int id, @RequestBody @Valid ActualizarUbicacionDTO dto) {

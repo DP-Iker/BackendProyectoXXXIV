@@ -35,21 +35,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 Claims claims = jwtUtil.validarToken(token);
                 String username = claims.getSubject();
-                boolean isAdmin = claims.get("esAdmin", Boolean.class);
+                if (username != null) {
+                    Object esAdminClaim = claims.get("esAdmin");
+                    boolean isAdmin = esAdminClaim instanceof Boolean && (Boolean) esAdminClaim;
 
-                List<SimpleGrantedAuthority> authorities = isAdmin ?
-                        List.of(new SimpleGrantedAuthority("ROLE_ADMIN")) :
-                        List.of(new SimpleGrantedAuthority("ROLE_USER"));
+                    List<SimpleGrantedAuthority> authorities = isAdmin
+                            ? List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                            : List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(username, null, authorities);
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(username, null, authorities);
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
 
             } catch (Exception e) {
                 SecurityContextHolder.clearContext();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
+                System.err.println("Error al procesar JWT: " + e.getMessage());
             }
         }
 

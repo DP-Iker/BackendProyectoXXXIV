@@ -1,11 +1,13 @@
 package com.xxxiv.controller;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -16,7 +18,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.xxxiv.dto.BloqueoUsuarioDTO;
@@ -24,6 +28,7 @@ import com.xxxiv.dto.EmailDTO;
 import com.xxxiv.dto.FiltroUsuariosDTO;
 import com.xxxiv.dto.UsuarioDTO;
 import com.xxxiv.model.Usuario;
+import com.xxxiv.service.ImgurService;
 import com.xxxiv.service.UsuarioService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +43,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(value = "/usuarios")
 public class UsuarioController {
 	private final UsuarioService usuarioService;
+	private final ImgurService imgurService;
 
 	// GET
 	@GetMapping
@@ -89,6 +95,7 @@ public class UsuarioController {
 		UsuarioDTO usuario = new UsuarioDTO();
 		usuario.setUsername(usuarioDb.getUsuario());
 		usuario.setEmail(usuarioDb.getEmail());
+		usuario.setFotoUrl(usuarioDb.getFoto());
 		return ResponseEntity.ok(usuario);
 	}
 
@@ -114,14 +121,36 @@ public class UsuarioController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@PatchMapping("/me")
+	@PatchMapping("/me/cambiar-email")
 	@SecurityRequirement(name = "bearerAuth")
-	@Operation(summary = "Cambia el Email", description = "Cambia el email del usuario logueado")
+	@Operation(summary = "Cambia el email", description = "Cambia el email del usuario logueado")
 	public ResponseEntity<Void> cambiarEmail(Authentication authentication, @RequestBody @Valid EmailDTO dto) {
 		String usuario = authentication.getName();
 		String email = dto.getEmail();
 		
 		usuarioService.cambiarEmail(usuario, email);
+
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PatchMapping(value = "/me/cambiar-foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@SecurityRequirement(name = "bearerAuth")
+	@Operation(summary = "Cambia la foto de perfil", description = "Cambia la foto de perfil del usuario logueado")
+	public ResponseEntity<?> cambiarFotoPerfil(Authentication authentication, @RequestPart("foto") MultipartFile foto) throws IOException {
+		// No envia nada
+		if (foto == null || foto.isEmpty()) {
+	        return ResponseEntity.badRequest().body("No se ha subido ningún archivo");
+	    }
+
+		// El archivo no es una foto
+	    if (!foto.getContentType().startsWith("image/")) {
+	        return ResponseEntity.badRequest().body("Solo se permiten archivos de imagen");
+	    }
+		
+		String usuario = authentication.getName();
+		String urlFoto = imgurService.subirImagen(foto.getBytes());
+		
+		usuarioService.cambiarFotoPerfil(usuario, urlFoto);
 
 		return ResponseEntity.noContent().build();
 	}
