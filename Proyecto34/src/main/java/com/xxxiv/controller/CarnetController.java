@@ -48,39 +48,12 @@ public class CarnetController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST
-//    @PostMapping("/saveimg")
-//    @Operation(summary = "Guardar Imagen de Carnet", description = "Guarda la Imagen del Carnet para posterior validacion")
-//    public ResponseEntity<String> saveImg(@ModelAttribute CarnetImageDTO dto) {
-//        try {
-//            String ruta = carnetService.saveImg(dto);
-//            return ResponseEntity.ok("Imagen guardada en: " + ruta);
-//            // Si no consigue hacer
-//        } catch (RuntimeException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
     @PostMapping("/saveimg")
     @Operation(summary = "Guardar Imagen de Carnet", description = "Guarda la Imagen del Carnet para posterior validación")
     public ResponseEntity<String> saveImg(@ModelAttribute CarnetImageDTO dto) throws IOException {
-//        // 1) dto.getUsuario(): cadena String con nombre de usuario
-//        // 2) dto.getImagen(): MultipartFile con la foto subida
-//
-//        if (dto.getUsuario() == null || dto.getUsuario().isBlank()) {
-//            return ResponseEntity.badRequest().body("El usuario es obligatorio");
-//        }
-//        if (dto.getImagen() == null || dto.getImagen().isEmpty()) {
-//            return ResponseEntity.badRequest().body("No se ha enviado ninguna imagen");
-//        }
 
        return ResponseEntity.ok(carnetService.saveImg(dto));
-//
-//        // Luego buscas al Usuario en BD, guardas el archivo, actualizas Carnet, etc.
-//        // ...
-//        return ResponseEntity.ok("Imagen guardada correctamente");
     }
 
     @GetMapping("/{id}/imagen")
@@ -113,7 +86,4 @@ public class CarnetController {
             return ResponseEntity.badRequest().build();
         }
     }
-
-
-
 }

@@ -20,14 +20,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final EmailService emailService;
-    
-    /**
-	 * Comprueba que el usuario y contraseña indicados coinciden con la BD
-	 * 
-	 * @param usuario     Nombre de usuario
-	 * @param contrasenya Contraseña enviada
-	 * @return Devuelve el token
-	 */
+
     public String login(String usuario, String contrasenya) {
     	Usuario usuarioDB = usuarioRepository.findByUsuario(usuario).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -38,31 +31,19 @@ public class AuthService {
 
         return jwtUtil.generarToken(usuarioDB.getUsuario(), usuarioDB.isEsAdministrador());
     }
-    
-    /**
-	 * Crea un usuario en la BD
-	 * 
-	 * @param usuario     Nombre de usuario
-	 * @param contrasenya Contraseña
-	 * @param email       Correo electrónico
-	 * @return Usuario creado
-	 */
+
 	public Usuario crearUsuario(String usuario, String contrasenya, String email) {
-		// Verifica que el usuario es único
 		if (usuarioRepository.existsByUsuario(usuario)) {
 			throw new IllegalArgumentException("El nombre de usuario ya está en uso.");
 		}
 
-		// Verifica que el email es único
 		if (usuarioRepository.existsByEmail(email)) {
 			throw new IllegalArgumentException("El email ya está en uso.");
 		}
 
-		// Hashea la contraseña
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String contrasenyaHasheada = passwordEncoder.encode(contrasenya);
 
-		// Crea el usuario
 		Usuario nuevoUsuario = new Usuario();
 		nuevoUsuario.setUsuario(usuario);
 		nuevoUsuario.setContrasenya(contrasenyaHasheada);
@@ -72,15 +53,10 @@ public class AuthService {
 
 		return usuarioRepository.save(nuevoUsuario);
 	}
-	
-	/**
-	 * Envia un correo con el link para cambiar la contraseña
-	 * @param email Email
-	 */
+
 	public void enviarCorreoCambioContrasenya(String email) {
         Optional<Usuario> optional = usuarioRepository.findByEmail(email);
-        
-        // Si el email existe, envia el código, si no, no dice nada
+
         if (optional.isPresent()) {
             String token = jwtUtil.generarTokenRecuperacion(optional.get().getEmail());
             String link = "https://localhost:5173/pass?token=" + token;
@@ -96,10 +72,7 @@ public class AuthService {
                 emailService.enviar(email, "Recupera tu contraseña", cuerpoHTML);
         }
     }
-	
-	/**
-	 * Envia un correo de prueba al correo especificado
-	 */
+
 	public void enviarCorreoPrueba() {
 	    String emailDestino = "";
 	    String asunto = "Correo de prueba";
@@ -108,11 +81,7 @@ public class AuthService {
 	    emailService.enviar(emailDestino, asunto, cuerpo);
 	    System.out.println("Se ha enviado el correo");
 	}
-	
-	/**
-	 * Cambia la contraseña
-	 * @param email Email
-	 */
+
 	public void cambiarContrasenya(String token, String contrasenyaNueva) {
 		Claims claims = jwtUtil.validarTokenRecuperacion(token);
 		

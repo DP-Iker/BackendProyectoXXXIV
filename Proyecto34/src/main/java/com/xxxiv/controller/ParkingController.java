@@ -30,10 +30,7 @@ public class ParkingController {
         this.parkingService = parkingService;
     }
 
-    /**
-     * GET /api/parkings
-     * Devuelve todos los parkings, con sus polígonos.
-     */
+
     @GetMapping
     public ResponseEntity<Page<ParkingDTO>> getAll(
             @RequestParam(required = false) String name,
@@ -59,10 +56,7 @@ public class ParkingController {
         return ResponseEntity.ok(pageDto);
     }
 
-    /**
-     * GET /api/parkings/{id}
-     * Devuelve un parking por su ID.
-     */
+
     @GetMapping("/{id}")
     public ResponseEntity<Parking> getById(@PathVariable Integer id) {
         try {
@@ -73,28 +67,13 @@ public class ParkingController {
         }
     }
 
-    /**
-     * POST /api/parkings
-     * Crea un nuevo parking (sin puntos). El JSON de entrada:
-     * {
-     * "name": "Parking Norte",
-     * "capacity": 30
-     * }
-     */
+
     @PostMapping
     public ResponseEntity<Parking> create(@RequestBody ParkingDTO payload) {
         Parking created = parkingService.create(payload);
         return ResponseEntity.status(201).body(created);
     }
 
-    /**
-     * PUT /api/parkings/{id}
-     * Actualiza solo los campos name y capacity. El JSON de entrada:
-     * {
-     * "name": "Nuevo Nombre",
-     * "capacity": 50
-     * }
-     */
     @PutMapping("/{id}")
     public ResponseEntity<Parking> update(
             @PathVariable Integer id,
@@ -108,10 +87,7 @@ public class ParkingController {
         }
     }
 
-    /**
-     * DELETE /api/parkings/{id}
-     * Elimina un parking por su ID.
-     */
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         try {
