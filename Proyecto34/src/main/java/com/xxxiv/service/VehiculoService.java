@@ -122,28 +122,21 @@ public class VehiculoService {
 
 
 	public List<VehiculoEnUsoDTO> obtenerVehiculosEnUsoConRuta() {
-
-		// Paso 1: Obtener la lista de viajes que están en curso (fechaFin == null)
 		List<Viaje> viajesEnCurso = viajeRepository.findByFechaFinIsNull();
 
-		// Paso 2: Mapear cada viaje a su DTO con vehículo y ruta
 		List<VehiculoEnUsoDTO> resultado = new ArrayList<>();
 
 		for (Viaje viaje : viajesEnCurso) {
-			// Paso 3: Obtener el vehículo del viaje
 			Vehiculo vehiculo = viaje.getVehiculo();
 
-			// Paso 4: Consultar los puntos de ruta ordenados por índice para este viaje
 			List<SeguimientoRuta> puntosRuta = rutaRepository.findByViajeIdOrderByIdPuntoIndexAsc(viaje.getId());
 
-			// Paso 5: Mapear cada punto de ruta a un DTO simple con latitud, longitud y velocidad
 			List<RutaPuntoDTO> rutaDTO = new ArrayList<>();
 			for (SeguimientoRuta punto : puntosRuta) {
 				RutaPuntoDTO dto = new RutaPuntoDTO(punto.getLatitud(), punto.getLongitud(), punto.getVelocidad());
 				rutaDTO.add(dto);
 			}
 
-			// Paso 6: Construir el DTO final con los datos del vehículo y su ruta
 			VehiculoEnUsoDTO vehiculoDTO = new VehiculoEnUsoDTO(
 					vehiculo.getId(),
 					vehiculo.getMarca(),
@@ -151,7 +144,6 @@ public class VehiculoService {
 					rutaDTO
 			);
 
-			// Paso 7: Añadir el DTO a la lista resultado
 			resultado.add(vehiculoDTO);
 		}
 

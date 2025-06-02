@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     List<Viaje> findByFechaFinIsNull();
+
+    List<Viaje> findByUsuarioUsuarioAndFechaFinIsNotNullOrderByFechaInicioDesc(String nombreUsuario);
 }

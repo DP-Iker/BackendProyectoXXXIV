@@ -12,8 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface CarnetRepository extends JpaRepository<Carnet, Integer> {
-    // Puedes agregar consultas personalizadas si necesitas
-
     Optional<Carnet> findByUsuario(Usuario usuario);
 
     Optional<Carnet> findByUsuarioUsuario(String usuario);

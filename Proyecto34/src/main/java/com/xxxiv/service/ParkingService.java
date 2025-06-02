@@ -29,14 +29,10 @@ public class ParkingService {
     @Autowired
     ParkingPolygonRepository parkingPolygonRepository;
 
-
     public ParkingService(ParkingRepository parkingRepository) {
         this.parkingRepository = parkingRepository;
     }
 
-    /**
-     * Devuelve todos los parkings almacenados (incluyendo sus polígonos).
-     */
     @Transactional(readOnly = true)
     public Page<Parking> findAll(FiltroParkingDTO filtro, Pageable pageable) {
         Specification<Parking> filtrosAplicados = ParkingSpecification.buildSpecification(filtro);
@@ -44,24 +40,11 @@ public class ParkingService {
         return parkingRepository.findAll(filtrosAplicados, pageable);
     }
 
-    /**
-     * Recupera un parking por su ID. Lanza EntityNotFoundException si no existe.
-     */
+
     @Transactional(readOnly = true)
     public Parking findById(Integer id) {
         return parkingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Parking no encontrado con id=" + id));
     }
-
-    /**
-     * Crea un nuevo parking (sin puntos de polígono inicialmente).
-     */
-//    @Transactional
-//    public Parking create(ParkingDTO dto) {
-//        // Convertir DTO a entidad Parking
-//        Parking parkingEntity = ParkingDTO.toEntity(dto); // suponiendo que tienes este método
-//        // Guardar en la base de datos
-//        return parkingRepository.save(parkingEntity);
-//    }
 
     @Transactional
     public Parking create(ParkingDTO dto) {
@@ -81,20 +64,15 @@ public class ParkingService {
 
         return parkingRepository.save(savedParking);
     }
-    /**
-     * Actualiza el parking existente (solo campos name y capacity).
-     * Para actualizar el polígono, usar métodos separados.
-     */
+
     @Transactional
     public Parking update(Integer id, ParkingDTO dto) {
-
         Parking parking = parkingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Parking not found"));
 
         parking.setName(dto.getName());
         parking.setCapacity(dto.getCapacity());
 
 
-//        parkingPolygonRepository.deleteByParkingId(parking.getId());
         parking.getPolygonPoints().clear(); // limpia la colección actual
         int index = 0;
         List<ParkingPolygon> newPolygons = new ArrayList<>();
@@ -105,14 +83,10 @@ public class ParkingService {
             newPolygons.add(polygon);
         }
         parking.getPolygonPoints().addAll(newPolygons);
-//        parking.setPolygonPoints(newPolygons);
 
         return parkingRepository.save(parking);
     }
 
-    /**
-     * Elimina un parking y todos sus puntos en cascada.
-     */
     @Transactional
     public void delete(Integer id) {
         Parking parking = parkingRepository.findById(id)
@@ -124,18 +98,12 @@ public class ParkingService {
         parkingRepository.deleteById(id);
     }
 
-    /**
-     * Reemplaza el polígono completo de un parking dado.
-     * Borra los puntos antiguos y guarda los nuevos en el orden proporcionado.
-     */
     @Transactional
     public Parking replacePolygon(Integer parkingId, List<double[]> newPoints) {
         Parking parking = findById(parkingId);
 
-        // Limpiar puntos antiguos
         parking.clearPolygonPoints();
 
-        // Añadir nuevos puntos
         for (int i = 0; i < newPoints.size(); i++) {
             double[] coords = newPoints.get(i);
             parking.addPolygonPoint(i, coords[0], coords[1]);
