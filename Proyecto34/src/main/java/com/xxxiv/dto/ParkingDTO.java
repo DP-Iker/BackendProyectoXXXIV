@@ -14,7 +14,6 @@ public class ParkingDTO {
 
     private Integer id;
     private String name;
-    private Integer capacity;
     private List<double[]> polygon; // cada elemento: [latitude, longitude]
 
     /**

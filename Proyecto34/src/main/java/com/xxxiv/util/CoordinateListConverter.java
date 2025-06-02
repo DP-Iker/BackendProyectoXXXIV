@@ -7,6 +7,7 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Converter
@@ -25,6 +26,9 @@ public class CoordinateListConverter implements AttributeConverter<List<Coordina
 
     @Override
     public List<Coordinate> convertToEntityAttribute(String json) {
+        if (json == null || json.isBlank()) {
+            return new ArrayList<>();
+        }
         try {
             return objectMapper.readValue(json, new TypeReference<List<Coordinate>>() {});
         } catch (IOException e) {

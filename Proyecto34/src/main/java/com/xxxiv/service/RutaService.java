@@ -85,4 +85,36 @@ public class RutaService {
 
         return dto;
     }
+
+    @Transactional(readOnly = true)
+    public List<RutaDTO> obtenerRutasActivas() {
+        List<Viaje> viajesActivos = viajeRepository.findByFechaFinIsNull();
+        List<RutaDTO> rutas = new ArrayList<>();
+
+        for (Viaje viaje : viajesActivos) {
+            Vehiculo vehiculo = viaje.getVehiculo();
+            if (vehiculo == null) {
+                // Si por alguna razón un viaje no tiene vehículo, lo ignoramos
+                continue;
+            }
+
+            RutaDTO dto = new RutaDTO();
+            dto.setId(viaje.getId());
+            dto.setMarca(vehiculo.getMarca());
+            dto.setModelo(vehiculo.getModelo());
+
+            List<double[]> listaPuntos = new ArrayList<>();
+            List<Coordinate> coords = viaje.getCods();
+            if (coords != null) {
+                for (Coordinate c : coords) {
+                    listaPuntos.add(new double[]{ c.getLat(), c.getLng() });
+                }
+            }
+            dto.setPuntos(listaPuntos);
+
+            rutas.add(dto);
+        }
+
+        return rutas;
+    }
 }

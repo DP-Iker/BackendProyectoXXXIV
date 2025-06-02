@@ -32,4 +32,11 @@ public class RutaController {
         RutaDTO dtoActualizada = rutaService.reemplazarRuta(viajeId, rutaDTO.getPuntos());
         return ResponseEntity.ok(dtoActualizada);
     }
+
+    @GetMapping("/activas")
+    public ResponseEntity<List<RutaDTO>> obtenerRutasActivas() {
+        List<RutaDTO> rutasActivas = rutaService.obtenerRutasActivas();
+        return ResponseEntity.ok(rutasActivas);
+    }
+
 }
