@@ -1,10 +1,10 @@
 package com.xxxiv.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,16 +18,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "viaje")
+@Table(name="viaje")
 public class Viaje {
-
+	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = 	GenerationType.IDENTITY)
 	private Integer id;
-
-	@ManyToOne
-	@JoinColumn(name = "usuario_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_viaje_usuario"))
-	private Usuario usuario;
+	
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_viaje_usuario"))
+    private Usuario usuario;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "vehiculo_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_viaje_vehiculo"))
@@ -36,8 +36,9 @@ public class Viaje {
 	@Column(name = "fecha_inicio", nullable = false)
 	private LocalDate fechaInicio;
 
-	@Column(name = "fecha_fin")
-	private LocalDate fechaFin;
+    
+    @Column(name = "fecha_fin")
+    private LocalDate fechaFin;
 
 	@Column(name = "km_recorridos")
 	private Integer kmRecorridos;
@@ -47,9 +48,13 @@ public class Viaje {
 
 	@Column(name = "longitud")
 	private Double longitud;
-	
+
 	@Column(name = "precio")
 	private Double precio;
+
+    @Convert(converter = CoordinateListConverter.class)
+    @Column(columnDefinition = "JSON", nullable = false)
+    private List<Coordinate> cods;
 
 	// Método para calcular el precio del viaje
 	public Double calcularPrecio() {

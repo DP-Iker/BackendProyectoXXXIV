@@ -4,24 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.xxxiv.dto.VehiculoEnUsoDTO;
-import com.xxxiv.model.SeguimientoRuta;
-import com.xxxiv.model.Viaje;
-import com.xxxiv.repository.SeguimientoRutaRepository;
-import com.xxxiv.repository.ViajeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.xxxiv.dto.CrearVehiculoDTO;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.Estado;
-import com.xxxiv.model.enums.Localidad;
 import com.xxxiv.model.enums.Tipo;
 import com.xxxiv.repository.VehiculoRepository;
 import com.xxxiv.specifications.VehiculoSpecification;
@@ -212,6 +204,7 @@ public class VehiculoService {
 			resultado.add(vehiculoDTO);
 		}
 
+		// Paso 8: Devolver la lista de vehículos en uso con sus rutas
 		return resultado;
 	}
 }

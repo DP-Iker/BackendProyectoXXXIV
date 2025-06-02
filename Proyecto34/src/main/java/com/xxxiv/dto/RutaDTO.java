@@ -7,11 +7,9 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class SeguimientoDTO {
+public class RutaDTO  {
     private Integer id;
     private String marca;
     private String modelo;
-    private List<double[]> ruta;
-
-    private List<Double> velocidades;
+    private List<double[]> puntos;
 }
