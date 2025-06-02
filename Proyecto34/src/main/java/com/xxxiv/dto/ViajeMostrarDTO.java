@@ -19,7 +19,7 @@ public class ViajeMostrarDTO {
 	private Integer vehiculoId;
 	private Double longitud;
 	private Double latitud;
-	private String localidad;
+	private Double precio;
 
 	public static ViajeMostrarDTO fromEntity(Viaje viaje) {
 		ViajeMostrarDTO dto = new ViajeMostrarDTO();
@@ -34,10 +34,10 @@ public class ViajeMostrarDTO {
 
 		if (viaje.getVehiculo() != null) {
 			dto.setVehiculoId(viaje.getVehiculo().getId());
-			dto.setLatitud(viaje.getVehiculo().getLatitud());
-			dto.setLongitud(viaje.getVehiculo().getLongitud());
-			dto.setLocalidad(viaje.getVehiculo().getLocalidad());
 		}
+		dto.setLatitud(viaje.getLatitud());
+		dto.setLongitud(viaje.getLongitud());
+		dto.setPrecio(viaje.getPrecio());
 
 		return dto;
 	}

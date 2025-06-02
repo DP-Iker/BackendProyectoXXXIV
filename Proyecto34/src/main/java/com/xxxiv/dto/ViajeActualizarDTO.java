@@ -12,5 +12,5 @@ public class ViajeActualizarDTO {
 	private Double longitud;
 	private LocalDate fechaFin;
 	private Integer kmRecorridos;
-	private String localidad;
+	
 }
