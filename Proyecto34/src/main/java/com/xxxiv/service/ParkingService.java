@@ -37,6 +37,7 @@ public class ParkingService {
         return parkingRepository.findAll(specification, pageable);
     }
 
+
     @Transactional
     public Parking create(ParkingDTO dto) {
         Parking parking = ParkingDTO.toEntity(dto);
@@ -95,5 +96,4 @@ public class ParkingService {
 
         return parkingRepository.save(parking);
     }
-
 }

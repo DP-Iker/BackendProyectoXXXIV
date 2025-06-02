@@ -2,43 +2,26 @@ package com.xxxiv.specifications;
 
 import com.xxxiv.dto.FiltroParkingDTO;
 import com.xxxiv.model.Parking;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ParkingSpecification {
+    public static Specification<Parking> buildSpecification(FiltroParkingDTO filtro) {
+        return (Root<Parking> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
-    public static Specification<Parking> nombreContiene(String nombre) {
-        return (root, query, cb) ->
-                nombre == null
-                        ? null
-                        : cb.like(cb.lower(root.get("name")), "%" + nombre.toLowerCase() + "%");
-    }
+            if (filtro.getName() != null && !filtro.getName().isBlank()) {
+                predicates.add(
+                        cb.like(cb.lower(root.get("name")), "%" + filtro.getName().toLowerCase() + "%")
+                );
+            }
 
-    public static Specification<Parking> capacidadMinima(Integer min) {
-        return (root, query, cb) ->
-                min == null
-                        ? null
-                        : cb.greaterThanOrEqualTo(root.get("capacity"), min);
-    }
-
-    public static Specification<Parking> capacidadMaxima(Integer max) {
-        return (root, query, cb) ->
-                max == null
-                        ? null
-                        : cb.lessThanOrEqualTo(root.get("capacity"), max);
-    }
-
-    public static Specification<Parking> buildSpecification(FiltroParkingDTO filter) {
-        return Specification.where(
-                        Optional.ofNullable(filter.getName())
-                                .map(ParkingSpecification::nombreContiene)
-                                .orElse(null))
-                .and(Optional.ofNullable(filter.getCapacidadMinima())
-                        .map(ParkingSpecification::capacidadMinima)
-                        .orElse(null))
-                .and(Optional.ofNullable(filter.getCapacidadMaxima())
-                        .map(ParkingSpecification::capacidadMaxima)
-                        .orElse(null));
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
     }
 }

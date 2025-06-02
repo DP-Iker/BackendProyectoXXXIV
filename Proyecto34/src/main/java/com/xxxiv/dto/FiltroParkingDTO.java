@@ -7,6 +7,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FiltroParkingDTO {
     private String name;
-    private Integer capacidadMinima;
-    private Integer capacidadMaxima;
 }

@@ -34,23 +34,21 @@ public class ParkingController {
     @GetMapping
     public ResponseEntity<Page<ParkingDTO>> getAll(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) Integer capacidadMinima,
-            @RequestParam(required = false) Integer capacidadMaxima,
             Pageable pageable
     ) {
+        // Limitar tamaño máximo de página
         int maxPageSize = 50;
-        int size = pageable.getPageSize() > maxPageSize
-                ? maxPageSize
-                : pageable.getPageSize();
+        int size = Math.min(pageable.getPageSize(), maxPageSize);
         Pageable safePageable = PageRequest.of(pageable.getPageNumber(), size, pageable.getSort());
 
+        // Construir el DTO de filtro (solo tiene 'name' ya que 'capacidad' fue eliminado)
         FiltroParkingDTO filtro = new FiltroParkingDTO();
-        filtro.setCapacidadMinima(capacidadMinima);
-        filtro.setCapacidadMaxima(capacidadMaxima);
         filtro.setName(name);
 
+        // Obtener la página de entidades
         Page<Parking> pageEntidades = parkingService.findAll(filtro, safePageable);
 
+        // Mapear a DTO
         Page<ParkingDTO> pageDto = pageEntidades.map(ParkingDTO::fromEntity);
 
         return ResponseEntity.ok(pageDto);
@@ -97,5 +95,4 @@ public class ParkingController {
             return ResponseEntity.notFound().build();
         }
     }
-
 }
