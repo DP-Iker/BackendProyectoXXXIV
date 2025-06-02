@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.xxxiv.dto.VehiculoEnUsoDTO;
+import com.xxxiv.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +23,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.xxxiv.dto.ActualizarUbicacionDTO;
-import com.xxxiv.dto.CrearVehiculoDTO;
-import com.xxxiv.dto.FiltroVehiculosDTO;
-import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.Estado;
 import com.xxxiv.model.enums.Puertas;
@@ -144,17 +141,11 @@ public class VehiculoController {
 
 		return ResponseEntity.ok(respuesta);
 	}
-    @GetMapping("/en-uso")
-    public ResponseEntity<List<VehiculoEnUsoDTO>> getVehiculosEnUsoConRuta() {
-        List<VehiculoEnUsoDTO> vehi = vehiculoService.obtenerVehiculosEnUsoConRuta();
-        return ResponseEntity.ok(vehi);
-    }
 
 	// POST
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping
 	@Operation(summary = "Crea un nuevo vehículo", description = "Crea un vehículo con los datos proporcionados (solo accesible por administradores)")
 	public ResponseEntity<Vehiculo> crearVehiculo(
 			@RequestPart("vehiculo") @Valid CrearVehiculoDTO dto,

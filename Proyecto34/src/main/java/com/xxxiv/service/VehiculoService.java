@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.xxxiv.dto.*;
+import com.xxxiv.model.Viaje;
+import com.xxxiv.repository.ViajeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.xxxiv.dto.CrearVehiculoDTO;
-import com.xxxiv.dto.EditarVehiculoDTO;
-import com.xxxiv.dto.FiltroVehiculosDTO;
-import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.Estado;
 import com.xxxiv.model.enums.Tipo;
@@ -27,7 +26,6 @@ public class VehiculoService {
 	
 	private final VehiculoRepository vehiculoRepository;
 	private final ViajeRepository viajeRepository;
-	private final SeguimientoRutaRepository rutaRepository;
     private final LocalidadService webClientService;
 	/**
 	 * Busca los vehículos según el filtro y los devuelve en página
@@ -173,37 +171,6 @@ public class VehiculoService {
 		vehiculo.setLocalidad(localidad);
 		
 		vehiculoRepository.save(vehiculo);
-		return true;
-	}
-
-
-	public List<VehiculoEnUsoDTO> obtenerVehiculosEnUsoConRuta() {
-		List<Viaje> viajesEnCurso = viajeRepository.findByFechaFinIsNull();
-
-		List<VehiculoEnUsoDTO> resultado = new ArrayList<>();
-
-		for (Viaje viaje : viajesEnCurso) {
-			Vehiculo vehiculo = viaje.getVehiculo();
-
-			List<SeguimientoRuta> puntosRuta = rutaRepository.findByViajeIdOrderByIdPuntoIndexAsc(viaje.getId());
-
-			List<RutaPuntoDTO> rutaDTO = new ArrayList<>();
-			for (SeguimientoRuta punto : puntosRuta) {
-				RutaPuntoDTO dto = new RutaPuntoDTO(punto.getLatitud(), punto.getLongitud(), punto.getVelocidad());
-				rutaDTO.add(dto);
-			}
-
-			VehiculoEnUsoDTO vehiculoDTO = new VehiculoEnUsoDTO(
-					vehiculo.getId(),
-					vehiculo.getMarca(),
-					vehiculo.getModelo(),
-					rutaDTO
-			);
-
-			resultado.add(vehiculoDTO);
-		}
-
-		// Paso 8: Devolver la lista de vehículos en uso con sus rutas
-		return resultado;
+		return "true";
 	}
 }
