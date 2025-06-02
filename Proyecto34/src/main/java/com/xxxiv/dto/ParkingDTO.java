@@ -11,4 +11,6 @@ public class ParkingDTO {
     private Integer id;
     private String name;
     private Integer capacity;
+    private Double longitud;
+    private Double latitud;
 }
