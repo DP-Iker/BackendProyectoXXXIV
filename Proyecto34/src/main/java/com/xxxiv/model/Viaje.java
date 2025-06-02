@@ -1,16 +1,10 @@
 package com.xxxiv.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.xxxiv.util.CoordinateListConverter;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,8 +37,10 @@ public class Viaje {
    
     @Column(name = "km_recorridos")
     private Integer kmRecorridos;
-    
-    
-	
+
+
+    @Convert(converter = CoordinateListConverter.class)
+    @Column(columnDefinition = "JSON", nullable = false)
+    private List<Coordinate> cods;
 
 }
