@@ -21,4 +21,6 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Integer>, Jp
     @Query("SELECT DISTINCT v.localidad FROM Vehiculo v WHERE v.estado = :estado")
     List<String> buscarLocalidadesDisponibles(@Param("estado") Estado estado);
 
+    @Query("SELECT DISTINCT v.marca FROM Vehiculo v WHERE v.estado = :estado")
+    List<String> buscarMarcasDisponibles(@Param("estado") Estado estado);
 }

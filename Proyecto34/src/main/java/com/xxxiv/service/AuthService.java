@@ -2,8 +2,10 @@ package com.xxxiv.service;
 
 import java.util.Optional;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.xxxiv.model.Usuario;
 import com.xxxiv.repository.UsuarioRepository;
@@ -18,7 +20,7 @@ public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final JwtUtil jwtUtil;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     
     /**
@@ -29,11 +31,17 @@ public class AuthService {
 	 * @return Devuelve el token
 	 */
     public String login(String usuario, String contrasenya) {
-    	Usuario usuarioDB = usuarioRepository.findByUsuario(usuario).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    	Usuario usuarioDB = usuarioRepository.findByUsuario(usuario)
+    			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+    	
+    	// Si está bloqueado
+        if (usuarioDB.isEstaBloqueado()) {
+        	throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "El usuario ha sido bloqueado");
+        }
 
     	// Si no encuentra la contraseña
         if (!passwordEncoder.matches(contrasenya, usuarioDB.getContrasenya())) {
-            throw new RuntimeException("Contraseña incorrecta");
+        	throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");
         }
 
         return jwtUtil.generarToken(usuarioDB.getUsuario(), usuarioDB.isEsAdministrador());
@@ -50,16 +58,15 @@ public class AuthService {
 	public Usuario crearUsuario(String usuario, String contrasenya, String email) {
 		// Verifica que el usuario es único
 		if (usuarioRepository.existsByUsuario(usuario)) {
-			throw new IllegalArgumentException("El nombre de usuario ya está en uso.");
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "Usuario en uso");
 		}
 
 		// Verifica que el email es único
 		if (usuarioRepository.existsByEmail(email)) {
-			throw new IllegalArgumentException("El email ya está en uso.");
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "Email en uso");
 		}
 
 		// Hashea la contraseña
-		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String contrasenyaHasheada = passwordEncoder.encode(contrasenya);
 
 		// Crea el usuario
@@ -106,7 +113,7 @@ public class AuthService {
 		
 		// Busca al usuario con el correo que dicta el token
 		Usuario usuario = usuarioRepository.findByEmail(claims.getSubject())
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 		
 		// Guarda la nueva contraseña en el usuario
         String contrasenya = passwordEncoder.encode(contrasenyaNueva);

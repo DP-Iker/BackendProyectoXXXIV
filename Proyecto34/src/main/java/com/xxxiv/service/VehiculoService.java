@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.xxxiv.dto.CrearVehiculoDTO;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
@@ -26,6 +27,7 @@ public class VehiculoService {
 	private final VehiculoRepository vehiculoRepository;
 	private final WebClientService webClientService;
 
+	// GET
 	/**
 	 * Busca los vehículos según el filtro y los devuelve en página
 	 * 
@@ -92,6 +94,38 @@ public class VehiculoService {
 	}
 	
 	/**
+	 * Busca todas las localidades dónde hay un vehículo disponible
+	 * 
+	 * @return Devuelve una lista de localidades
+	 */
+	public List<String> getMarcasDisponibles() {
+		return vehiculoRepository.buscarMarcasDisponibles(Estado.DISPONIBLE);
+	}
+	
+	// POST
+	public Vehiculo crearVehiculo(CrearVehiculoDTO dto) {
+	    Vehiculo vehiculo = new Vehiculo();
+	    vehiculo.setMarca(dto.getMarca());
+	    vehiculo.setModelo(dto.getModelo());
+	    vehiculo.setImagen(dto.getImagen());
+	    vehiculo.setKilometraje(dto.getKilometraje());
+	    vehiculo.setUltimaRevision(dto.getUltimaRevision());
+	    vehiculo.setAutonomia(dto.getAutonomia());
+	    vehiculo.setEstado(dto.getEstado() != null ? dto.getEstado() : Estado.DISPONIBLE);
+	    vehiculo.setLatitud(dto.getLatitud());
+	    vehiculo.setLongitud(dto.getLongitud());
+	    vehiculo.setLocalidad(dto.getLocalidad());
+	    vehiculo.setPuertas(dto.getPuertas());
+	    vehiculo.setTipo(dto.getTipo());
+	    vehiculo.setEsAccesible(dto.isEsAccesible());
+
+	    return vehiculoRepository.save(vehiculo);
+	}
+
+	
+	
+	// PATCH
+	/**
 	 * Actualiza la ubicacion del vehículo (Consulta a una API externa la localidad más cercana)
 	 * @param id ID del vehículo
 	 * @param latitud Nueva latitud
@@ -113,7 +147,4 @@ public class VehiculoService {
 		
 		return "Ubicación del vehículo "+ id +" actualizada";
 	}
-	
-	
-
 }

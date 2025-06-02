@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.xxxiv.dto.BloqueoUsuarioDTO;
+import com.xxxiv.dto.EmailDTO;
 import com.xxxiv.dto.FiltroUsuariosDTO;
 import com.xxxiv.dto.UsuarioDTO;
 import com.xxxiv.model.Usuario;
@@ -29,38 +30,33 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/usuarios")
-@SecurityRequirement(name = "bearerAuth")
 public class UsuarioController {
 	private final UsuarioService usuarioService;
 
 	// GET
 	@GetMapping
+	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "Devuelve todos los usuarios", description = "Devuelve todos los usuarios que hay en la BD")
-	@Parameters({
-	    @Parameter(name = "page", description = "Número de página", example = "0"),
-	    @Parameter(name = "size", description = "Cantidad de elementos por página", example = "10"),
-	    @Parameter(name = "sort", description = "Ordenamiento (campo,dirección). Ej: id,asc o usuario,desc", example = "id,asc")
-	})
-	public ResponseEntity<Page<Usuario>> getUsuarios(
-			@RequestParam(required = false) String usuario,
-			@RequestParam(required = false) String email, 
-			@RequestParam(required = false) Boolean estaBloqueado,
+	@Parameters({ @Parameter(name = "page", description = "Número de página", example = "0"),
+			@Parameter(name = "size", description = "Cantidad de elementos por página", example = "10"),
+			@Parameter(name = "sort", description = "Ordenamiento (campo,dirección). Ej: id,asc o usuario,desc", example = "id,asc") })
+	public ResponseEntity<Page<Usuario>> getUsuarios(@RequestParam(required = false) String usuario,
+			@RequestParam(required = false) String email, @RequestParam(required = false) Boolean estaBloqueado,
 			@RequestParam(required = false) Boolean esAdministrador,
-			@RequestParam(required = false) LocalDateTime createdAt,
-			Pageable pageable
-	) {
+			@RequestParam(required = false) LocalDateTime createdAt, Pageable pageable) {
 		// Controla que el tamaño no sea excesivo
-		int maxPageSize = 50;  // Límite de elementos por página
-	    int size = pageable.getPageSize() > maxPageSize ? maxPageSize : pageable.getPageSize();
+		int maxPageSize = 50; // Límite de elementos por página
+		int size = pageable.getPageSize() > maxPageSize ? maxPageSize : pageable.getPageSize();
 
-	    Pageable safePageable = PageRequest.of(pageable.getPageNumber(), size, pageable.getSort());
-	    
+		Pageable safePageable = PageRequest.of(pageable.getPageNumber(), size, pageable.getSort());
+
 		// Crea el filtro
 		FiltroUsuariosDTO filtro = new FiltroUsuariosDTO();
 		filtro.setUsuario(usuario);
@@ -74,73 +70,83 @@ public class UsuarioController {
 	}
 
 	@GetMapping("/{id}")
+	@SecurityRequirement(name = "bearerAuth")
+	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "Devuelve al usuario por ID", description = "Devuelve todos los datos del usuario de esa ID que hay en la BD")
 	public ResponseEntity<Usuario> getUsuarioById(@PathVariable int id) {
 		return usuarioService.buscarPorId(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
 	}
-	
+
 	@GetMapping("/me")
+	@SecurityRequirement(name = "bearerAuth")
 	@Operation(summary = "Devuelve al usuario según su token de sesión", description = "Devuelve todos los datos del usuario que pide la información")
-    public ResponseEntity<UsuarioDTO> obtenerUsuarioAutenticado(Authentication authentication) {
-        String username = authentication.getName();
-        Usuario usuarioDb = usuarioService.buscarPorUsuario(username)
-        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-        
-        // Crea el DTO
-        UsuarioDTO usuario = new UsuarioDTO();
-        usuario.setUsername(usuarioDb.getUsuario());
-        usuario.setEmail(usuarioDb.getEmail());
-        return ResponseEntity.ok(usuario);
-    }
-	
+	public ResponseEntity<UsuarioDTO> obtenerUsuarioAutenticado(Authentication authentication) {
+		String username = authentication.getName();
+		Usuario usuarioDb = usuarioService.buscarPorUsuario(username)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+		// Crea el DTO
+		UsuarioDTO usuario = new UsuarioDTO();
+		usuario.setUsername(usuarioDb.getUsuario());
+		usuario.setEmail(usuarioDb.getEmail());
+		return ResponseEntity.ok(usuario);
+	}
+
 	// PATCH
-	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/admin/{id}")
+	@SecurityRequirement(name = "bearerAuth")
+	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "Hace admin al usuario indicado", description = "Da permisos de administrador al usuario seleccionado")
 	public ResponseEntity<Boolean> hacerAdmin(@PathVariable int id) {
-		boolean respuesta = usuarioService.hacerAdmin(id);
-		
-	    return ResponseEntity.ok(respuesta);
+		usuarioService.hacerAdmin(id);
+
+		return ResponseEntity.noContent().build();
 	}
 	
-	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/bloquear/{id}")
+	@SecurityRequirement(name = "bearerAuth")
+	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "Bloquea usuario indicado", description = "Bloquea al usuario seleccionado")
-	public ResponseEntity<Boolean> bloquearUsuario(@PathVariable int id, @RequestBody BloqueoUsuarioDTO dto) {
+	public ResponseEntity<Boolean> bloquearUsuario(@PathVariable int id, @RequestBody @Valid BloqueoUsuarioDTO dto) {
 		String mensaje = dto.getMensaje();
-		boolean respuesta = usuarioService.bloquearUsuario(id, mensaje);
-		
-	    return ResponseEntity.ok(respuesta);
+		usuarioService.bloquearUsuario(id, mensaje);
+
+		return ResponseEntity.noContent().build();
 	}
-	
+
+	@PatchMapping("/me")
+	@SecurityRequirement(name = "bearerAuth")
+	@Operation(summary = "Cambia el Email", description = "Cambia el email del usuario logueado")
+	public ResponseEntity<Void> cambiarEmail(Authentication authentication, @RequestBody @Valid EmailDTO dto) {
+		String usuario = authentication.getName();
+		String email = dto.getEmail();
+		
+		usuarioService.cambiarEmail(usuario, email);
+
+		return ResponseEntity.noContent().build();
+	}
 
 	// DELETE
-	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{id}")
+	@SecurityRequirement(name = "bearerAuth")
+	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "Elimina al usuario por ID", description = "Elimina al usuario de la BD con el ID")
 	public ResponseEntity<Void> eliminarUsuario(@PathVariable int id) {
-		boolean eliminado = usuarioService.eliminarUsuario(id);
-        
-        if (eliminado) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+		usuarioService.eliminarUsuario(id);
+
+		return ResponseEntity.noContent().build();
 	}
-	
+
 	@DeleteMapping("/me")
+	@SecurityRequirement(name = "bearerAuth")
 	@Operation(summary = "Elimina al usuario según su token de sesión", description = "Elimina al usuario de la BD con el token de sesión")
-	public ResponseEntity<Void> eliminarUsuario(Authentication authentication) {
+	public ResponseEntity<Void> eliminarUsuarioPropio(Authentication authentication) {
 		String username = authentication.getName();
-        Usuario usuario = usuarioService.buscarPorUsuario(username)
-        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-		
-        boolean eliminado = usuarioService.eliminarUsuario(usuario.getId());
-        
-        if (eliminado) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+		Usuario usuario = usuarioService.buscarPorUsuario(username)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+		usuarioService.eliminarUsuario(usuario.getId());
+
+		return ResponseEntity.noContent().build();
 	}
 }

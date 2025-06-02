@@ -16,13 +16,16 @@ import com.xxxiv.model.Usuario;
 import com.xxxiv.service.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/auth")
+@SecurityRequirement(name = "")
 public class AuthController {
+	
 	private final AuthService authService;
 
 	// POST
@@ -55,7 +58,7 @@ public class AuthController {
     }
 
     @PostMapping("/cambiar-contrasenya")
-    @Operation(summary = "cambia la contraseña", description = "Cambia la contraseña del usuario según el token")
+    @Operation(summary = "Cambia la contraseña", description = "Cambia la contraseña del usuario según el token")
     public ResponseEntity<String> resetPassword(@RequestBody @Valid CambiarContrasenyaDTO dto) {
         authService.cambiarContrasenya(dto.getToken(), dto.getContrasenyaNueva());
         return ResponseEntity.ok("Contraseña cambiada correctamente");

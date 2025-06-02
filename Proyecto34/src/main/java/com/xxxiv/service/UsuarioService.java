@@ -5,11 +5,12 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.xxxiv.dto.FiltroUsuariosDTO;
 import com.xxxiv.model.Usuario;
-import com.xxxiv.model.Vehiculo;
 import com.xxxiv.repository.UsuarioRepository;
 import com.xxxiv.specifications.UsuarioSpecification;
 
@@ -60,36 +61,58 @@ public class UsuarioService {
 	 * @param id ID del usuario
 	 * @return Mensaje diciendo si se ha borrado
 	 */
-	public boolean eliminarUsuario(int id) {
-		Optional<Usuario> usuarioAEliminar = buscarPorId(id);
-
-		// Si no encuentra al usuario
-		if (usuarioAEliminar.isEmpty()) {
-			return false;
-		}
-		// Elimina al usuario
-		usuarioRepository.deleteById(id);
-		return true;
+	public void eliminarUsuario(int id) {
+		Usuario usuario = buscarPorId(id)
+		        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID " + id + " no encontrado"));
+		
+		
+		usuarioRepository.delete(usuario);
 	}
 	
-	public boolean hacerAdmin(int id) {
+	/**
+	 * Hace admin al usuario indicado
+	 * 
+	 * @param id ID del usuario
+	 */
+	public void hacerAdmin(int id) {
 		Usuario usuario = buscarPorId(id)
-			    .orElseThrow(() -> new IllegalArgumentException("Usuario con ID " + id + " no encontrado"));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID " + id + " no encontrado"));
 		
 		usuario.setEsAdministrador(true);
-		usuarioRepository.save(usuario);
-		
-		return true;
+		usuarioRepository.save(usuario);;
 	}
 	
-	public boolean bloquearUsuario(int id, String mensaje) {
+	/**
+	 * Bloquea al usuario con el ID indicado
+	 * 
+	 * @param id ID del usuario
+	 * @param mensaje Mensaje sobre el motivo del bloqueo
+	 */
+	public void bloquearUsuario(int id, String mensaje) {
 		Usuario usuario = buscarPorId(id)
-			    .orElseThrow(() -> new IllegalArgumentException("Usuario con ID " + id + " no encontrado"));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID " + id + " no encontrado"));
 		
 		usuario.setEstaBloqueado(true);
 		usuario.setMotivoBloqueo(mensaje);
 		usuarioRepository.save(usuario);
+	}
+	
+	/**
+	 * Cambia el email del usuario
+	 * 
+	 * @param nombreUsuario Nombre de usuario
+	 * @param email Email
+	 */
+	public void cambiarEmail(String nombreUsuario, String email) {
+		Usuario usuario = usuarioRepository.findByUsuario(nombreUsuario)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID no encontrado"));
 		
-		return true;
+		// Revisa si existe un usuario con ese correo
+		if (usuarioRepository.existsByEmail(email)) {
+			new ResponseStatusException(HttpStatus.CONFLICT, "El email ya está en uso");
+		}
+		
+		usuario.setEmail(email);
+		usuarioRepository.save(usuario);
 	}
 }
