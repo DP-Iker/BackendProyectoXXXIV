@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.xxxiv.dto.CrearVehiculoDTO;
+import com.xxxiv.dto.EditarVehiculoDTO;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class VehiculoService {
+	
 	private final VehiculoRepository vehiculoRepository;
 	private final ViajeRepository viajeRepository;
 	private final SeguimientoRutaRepository rutaRepository;
@@ -46,7 +48,7 @@ public class VehiculoService {
 	 * @return Devuelve el vehiculo o un 404
 	 */
 	public Optional<Vehiculo> buscarPorId(int id) {
-		return vehiculoRepository.findById(id);
+	    return vehiculoRepository.findById(id);
 	}
 
 	/**
@@ -57,7 +59,7 @@ public class VehiculoService {
 	public List<UbicacionVehiculosDTO> getUbicaciones(Tipo tipo) {
 		// Busca todos los vehiculos y los guarda en una lista
 		List<Vehiculo> vehiculosDisponibles = vehiculoRepository.findByEstado(Estado.DISPONIBLE);
-		
+
 		if (tipo != null) {
 			vehiculosDisponibles = vehiculoRepository.findByEstadoAndTipo(Estado.DISPONIBLE, tipo);
 		} else {
@@ -87,19 +89,19 @@ public class VehiculoService {
 	 * 
 	 * @return Devuelve una lista de localidades
 	 */
-	public List<Localidad> getLocalidadesDisponibles() {
+	public List<String> getLocalidadesDisponibles() {
 		return vehiculoRepository.buscarLocalidadesDisponibles(Estado.DISPONIBLE);
 	}
-
+	
 	/**
 	 * Busca todas las localidades dónde hay un vehículo disponible
-	 *
+	 * 
 	 * @return Devuelve una lista de localidades
 	 */
 	public List<String> getMarcasDisponibles() {
 		return vehiculoRepository.buscarMarcasDisponibles(Estado.DISPONIBLE);
 	}
-
+	
 	// POST
 	/**
 	 * Crea un vehículo
@@ -127,7 +129,8 @@ public class VehiculoService {
 	    return vehiculoRepository.save(vehiculo);
 	}
 
-
+	
+	
 	// PATCH
 	public void editarVehiculo(int id, EditarVehiculoDTO dto, String imagenUrl) {
 		Vehiculo vehiculo = buscarPorId(id)
@@ -153,7 +156,6 @@ public class VehiculoService {
 
 	/**
 	 * Actualiza la ubicacion del vehículo (Consulta a una API externa la localidad más cercana)
-	 *
 	 * @param id ID del vehículo
 	 * @param latitud Nueva latitud
 	 * @param longitud Nueva longitud
@@ -161,18 +163,15 @@ public class VehiculoService {
 	 */
 	public String actualizarUbicacion(int id, double latitud, double longitud) {
 		String localidad = webClientService.obtenerLocalidad(latitud, longitud);
-
+		
 		Vehiculo vehiculo = buscarPorId(id)
 				.orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado"));
-
+		
 		// Modifica el vehículo
 		vehiculo.setLatitud(latitud);
 		vehiculo.setLongitud(longitud);
-
-		if (localidad != null) {
-			vehiculo.setLocalidad(localidad);
-		}
-
+		vehiculo.setLocalidad(localidad);
+		
 		vehiculoRepository.save(vehiculo);
 		return true;
 	}
