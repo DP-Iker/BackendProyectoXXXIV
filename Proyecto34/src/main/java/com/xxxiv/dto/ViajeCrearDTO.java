@@ -3,7 +3,6 @@ package com.xxxiv.dto;
 import java.time.LocalDate;
 
 import com.xxxiv.model.Viaje;
-import com.xxxiv.model.enums.Localidad;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -38,7 +37,7 @@ public class ViajeCrearDTO {
 	    private Double latitud;
 	    
 	    @NotNull(message = "La localidad es obligatoria")
-	    private Localidad localidad;
+	    private String localidad;
 	    
 	    
 	    //Mapea el DTO a entidad

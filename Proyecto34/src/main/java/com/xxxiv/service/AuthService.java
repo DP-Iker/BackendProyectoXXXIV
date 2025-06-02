@@ -83,7 +83,7 @@ public class AuthService {
         // Si el email existe, envia el código, si no, no dice nada
         if (optional.isPresent()) {
             String token = jwtUtil.generarTokenRecuperacion(optional.get().getEmail());
-            String link = "https://localhost:5173/pass?token=" + token;
+            String link = "http://localhost:5173/panel/pass?token=" + token;
             
             String cuerpoHTML = """
                     <p>Hola,</p>
@@ -96,18 +96,6 @@ public class AuthService {
                 emailService.enviar(email, "Recupera tu contraseña", cuerpoHTML);
         }
     }
-	
-	/**
-	 * Envia un correo de prueba al correo especificado
-	 */
-	public void enviarCorreoPrueba() {
-	    String emailDestino = "";
-	    String asunto = "Correo de prueba";
-	    String cuerpo = "<p>Este es un correo de prueba enviado desde Spring Boot</p>";
-
-	    emailService.enviar(emailDestino, asunto, cuerpo);
-	    System.out.println("Se ha enviado el correo");
-	}
 	
 	/**
 	 * Cambia la contraseña
@@ -126,6 +114,17 @@ public class AuthService {
 
         usuarioRepository.save(usuario);
     }
+	
+	/**
+	 * Envia un correo de prueba al correo especificado
+	 */
+	public void enviarCorreoPrueba() {
+	    String emailDestino = "";
+	    String asunto = "Correo de prueba";
+	    String cuerpo = "<p>Este es un correo de prueba enviado desde Spring Boot</p>";
 
+	    emailService.enviar(emailDestino, asunto, cuerpo);
+	    System.out.println("Se ha enviado el correo");
+	}
 }
 

@@ -3,7 +3,6 @@ package com.xxxiv.dto;
 import java.time.LocalDate;
 
 import com.xxxiv.model.enums.Estado;
-import com.xxxiv.model.enums.Localidad;
 import com.xxxiv.model.enums.Puertas;
 import com.xxxiv.model.enums.Tipo;
 
@@ -18,7 +17,7 @@ public class FiltroVehiculosDTO {
 	private LocalDate ultimaRevision;
 	private Integer autonomia;
 	private Estado estado;
-	private Localidad localidad;
+	private String localidad;
 	private Boolean esAccesible;
 	private Puertas puertas;
 	private Tipo tipo;

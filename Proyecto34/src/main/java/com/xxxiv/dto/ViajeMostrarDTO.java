@@ -3,7 +3,6 @@ package com.xxxiv.dto;
 import java.time.LocalDate;
 
 import com.xxxiv.model.Viaje;
-import com.xxxiv.model.enums.Localidad;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +19,7 @@ public class ViajeMostrarDTO {
 	private Integer vehiculoId;
 	private Double longitud;
 	private Double latitud;
-	private Localidad localidad;
+	private String localidad;
 
 	public static ViajeMostrarDTO fromEntity(Viaje viaje) {
 		ViajeMostrarDTO dto = new ViajeMostrarDTO();

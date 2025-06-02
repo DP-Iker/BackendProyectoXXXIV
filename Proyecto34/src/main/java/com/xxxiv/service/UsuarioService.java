@@ -5,12 +5,11 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.xxxiv.dto.FiltroUsuariosDTO;
-import com.xxxiv.exception.EmailException;
 import com.xxxiv.model.Usuario;
+import com.xxxiv.model.Vehiculo;
 import com.xxxiv.repository.UsuarioRepository;
 import com.xxxiv.specifications.UsuarioSpecification;
 
@@ -54,31 +53,6 @@ public class UsuarioService {
 		return usuarioRepository.findByUsuario(usuario);
 	}
 
-	// POST
-
-//	public void enviarCodigo(String email) throws EmailException {
-//		try {
-//	        
-//			
-//	    } catch (MessagingException e) {
-//	        throw new EmailException("Error enviando correo", e);
-//	    }
-//	}
-
-	// PATCH
-//	public boolean cambiarContrasenya(int id,) {
-//		Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
-//		
-//		if (usuarioOpt.isEmpty()) {
-//			return false;
-//		}
-//		Usuario usuario = usuarioOpt.get();
-//		
-//		
-//		
-//		return true;
-//	}
-
 	// DELETE
 	/**
 	 * Elimina al usuario de la BD
@@ -95,6 +69,27 @@ public class UsuarioService {
 		}
 		// Elimina al usuario
 		usuarioRepository.deleteById(id);
+		return true;
+	}
+	
+	public boolean hacerAdmin(int id) {
+		Usuario usuario = buscarPorId(id)
+			    .orElseThrow(() -> new IllegalArgumentException("Usuario con ID " + id + " no encontrado"));
+		
+		usuario.setEsAdministrador(true);
+		usuarioRepository.save(usuario);
+		
+		return true;
+	}
+	
+	public boolean bloquearUsuario(int id, String mensaje) {
+		Usuario usuario = buscarPorId(id)
+			    .orElseThrow(() -> new IllegalArgumentException("Usuario con ID " + id + " no encontrado"));
+		
+		usuario.setEstaBloqueado(true);
+		usuario.setMotivoBloqueo(mensaje);
+		usuarioRepository.save(usuario);
+		
 		return true;
 	}
 }

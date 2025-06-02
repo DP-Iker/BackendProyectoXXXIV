@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.Estado;
-import com.xxxiv.model.enums.Localidad;
 import com.xxxiv.model.enums.Tipo;
 
 @Repository
@@ -20,6 +19,6 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Integer>, Jp
     List<Vehiculo> findByEstadoAndTipo(Estado estado, Tipo tipo);
     
     @Query("SELECT DISTINCT v.localidad FROM Vehiculo v WHERE v.estado = :estado")
-    List<Localidad> buscarLocalidadesDisponibles(@Param("estado") Estado estado);
+    List<String> buscarLocalidadesDisponibles(@Param("estado") Estado estado);
 
 }

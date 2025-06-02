@@ -7,15 +7,12 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.Estado;
-import com.xxxiv.model.enums.Localidad;
 import com.xxxiv.model.enums.Tipo;
 import com.xxxiv.repository.VehiculoRepository;
 import com.xxxiv.specifications.VehiculoSpecification;
@@ -25,7 +22,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class VehiculoService {
+	
 	private final VehiculoRepository vehiculoRepository;
+	private final WebClientService webClientService;
 
 	/**
 	 * Busca los vehículos según el filtro y los devuelve en página
@@ -46,7 +45,7 @@ public class VehiculoService {
 	 * @return Devuelve el vehiculo o un 404
 	 */
 	public Optional<Vehiculo> buscarPorId(int id) {
-		return vehiculoRepository.findById(id);
+	    return vehiculoRepository.findById(id);
 	}
 
 	/**
@@ -58,6 +57,7 @@ public class VehiculoService {
 		// Busca todos los vehiculos y los guarda en una lista
 		List<Vehiculo> vehiculosDisponibles = vehiculoRepository.findByEstado(Estado.DISPONIBLE);
 		
+		// Si ha filtrado por el tipo, solo devuelve los disponibles de ese tipo
 		if (tipo != null) {
 			vehiculosDisponibles = vehiculoRepository.findByEstadoAndTipo(Estado.DISPONIBLE, tipo);
 		} else {
@@ -87,30 +87,33 @@ public class VehiculoService {
 	 * 
 	 * @return Devuelve una lista de localidades
 	 */
-	public List<Localidad> getLocalidadesDisponibles() {
+	public List<String> getLocalidadesDisponibles() {
 		return vehiculoRepository.buscarLocalidadesDisponibles(Estado.DISPONIBLE);
 	}
-
-	public Vehiculo save(Vehiculo vehiculo) {
-		return vehiculoRepository.save(vehiculo);
-	}
-
-	public boolean actualizarUbicacion(int idVehiculo, Double latitud, Double longitud, Localidad localidad) {
-		if (latitud == null || longitud == null)
-			return false;
-
-		Vehiculo vehiculo = vehiculoRepository.findById(idVehiculo)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vehículo no encontrado"));
-
+	
+	/**
+	 * Actualiza la ubicacion del vehículo (Consulta a una API externa la localidad más cercana)
+	 * @param id ID del vehículo
+	 * @param latitud Nueva latitud
+	 * @param longitud Nueva longitud
+	 * @return Devuelve un String si ha funcionado
+	 */
+	public String actualizarUbicacion(int id, double latitud, double longitud) {
+		String localidad = webClientService.obtenerLocalidad(latitud, longitud);
+		
+		Vehiculo vehiculo = buscarPorId(id)
+				.orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado"));;
+		
+		// Modifica el vehículo
 		vehiculo.setLatitud(latitud);
 		vehiculo.setLongitud(longitud);
-
-		if (localidad != null) {
-			vehiculo.setLocalidad(localidad);
-		}
-
+		vehiculo.setLocalidad(localidad);
+		
 		vehiculoRepository.save(vehiculo);
-		return true;
+		
+		return "Ubicación del vehículo "+ id +" actualizada";
 	}
+	
+	
 
 }

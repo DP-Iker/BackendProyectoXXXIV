@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 import com.xxxiv.model.enums.Estado;
-import com.xxxiv.model.enums.Localidad;
 import com.xxxiv.model.enums.Puertas;
 import com.xxxiv.model.enums.Tipo;
 
@@ -48,9 +47,8 @@ public class Vehiculo {
     @Column(nullable = false)
     private double longitud;
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Localidad localidad;
+    @Column(nullable = false, length = 50)
+    private String localidad;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

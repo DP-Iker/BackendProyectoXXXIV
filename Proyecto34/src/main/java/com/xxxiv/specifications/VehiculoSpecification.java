@@ -3,7 +3,6 @@ package com.xxxiv.specifications;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.Estado;
-import com.xxxiv.model.enums.Localidad;
 import com.xxxiv.model.enums.Puertas;
 import com.xxxiv.model.enums.Tipo;
 
@@ -33,7 +32,7 @@ public class VehiculoSpecification {
 		return (root, query, cb) -> estado == null ? null : cb.equal(root.get("estado"), estado);
 	}
 
-	public static Specification<Vehiculo> tieneLocalidad(Localidad localidad) {
+	public static Specification<Vehiculo> tieneLocalidad(String localidad) {
 		return (root, query, cb) -> localidad == null ? null : cb.equal(root.get("localidad"), localidad);
 	}
 

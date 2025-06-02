@@ -11,12 +11,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.xxxiv.dto.BloqueoUsuarioDTO;
 import com.xxxiv.dto.FiltroUsuariosDTO;
 import com.xxxiv.dto.UsuarioDTO;
 import com.xxxiv.model.Usuario;
@@ -80,7 +83,8 @@ public class UsuarioController {
 	@Operation(summary = "Devuelve al usuario según su token de sesión", description = "Devuelve todos los datos del usuario que pide la información")
     public ResponseEntity<UsuarioDTO> obtenerUsuarioAutenticado(Authentication authentication) {
         String username = authentication.getName();
-        Usuario usuarioDb = usuarioService.buscarPorUsuario(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        Usuario usuarioDb = usuarioService.buscarPorUsuario(username)
+        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
         
         // Crea el DTO
         UsuarioDTO usuario = new UsuarioDTO();
@@ -88,11 +92,55 @@ public class UsuarioController {
         usuario.setEmail(usuarioDb.getEmail());
         return ResponseEntity.ok(usuario);
     }
+	
+	// PATCH
+	@PreAuthorize("hasRole('ADMIN')")
+	@PatchMapping("/admin/{id}")
+	@Operation(summary = "Hace admin al usuario indicado", description = "Da permisos de administrador al usuario seleccionado")
+	public ResponseEntity<Boolean> hacerAdmin(@PathVariable int id) {
+		boolean respuesta = usuarioService.hacerAdmin(id);
+		
+	    return ResponseEntity.ok(respuesta);
+	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PatchMapping("/bloquear/{id}")
+	@Operation(summary = "Bloquea usuario indicado", description = "Bloquea al usuario seleccionado")
+	public ResponseEntity<Boolean> bloquearUsuario(@PathVariable int id, @RequestBody BloqueoUsuarioDTO dto) {
+		String mensaje = dto.getMensaje();
+		boolean respuesta = usuarioService.bloquearUsuario(id, mensaje);
+		
+	    return ResponseEntity.ok(respuesta);
+	}
+	
 
 	// DELETE
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{id}")
 	@Operation(summary = "Elimina al usuario por ID", description = "Elimina al usuario de la BD con el ID")
-	public boolean eliminarUsuario(@PathVariable int id) {
-		return usuarioService.eliminarUsuario(id);
+	public ResponseEntity<Void> eliminarUsuario(@PathVariable int id) {
+		boolean eliminado = usuarioService.eliminarUsuario(id);
+        
+        if (eliminado) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+	}
+	
+	@DeleteMapping("/me")
+	@Operation(summary = "Elimina al usuario según su token de sesión", description = "Elimina al usuario de la BD con el token de sesión")
+	public ResponseEntity<Void> eliminarUsuario(Authentication authentication) {
+		String username = authentication.getName();
+        Usuario usuario = usuarioService.buscarPorUsuario(username)
+        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+		
+        boolean eliminado = usuarioService.eliminarUsuario(usuario.getId());
+        
+        if (eliminado) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 	}
 }

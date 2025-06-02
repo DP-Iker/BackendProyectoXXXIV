@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.xxxiv.dto.ActualizarUbicacionDTO;
 import com.xxxiv.dto.FiltroVehiculosDTO;
 import com.xxxiv.dto.UbicacionVehiculosDTO;
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.Estado;
-import com.xxxiv.model.enums.Localidad;
 import com.xxxiv.model.enums.Puertas;
 import com.xxxiv.model.enums.Tipo;
 import com.xxxiv.service.VehiculoService;
@@ -27,7 +27,6 @@ import com.xxxiv.service.VehiculoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -46,9 +45,12 @@ public class VehiculoController {
 			@Parameter(name = "sort", description = "Ordenamiento (campo,dirección). Ej: id,asc o usuario,desc", example = "id,asc") })
 	public ResponseEntity<Page<Vehiculo>> getVehiculos(@RequestParam(required = false) String marca,
 			@RequestParam(required = false) Integer kilometraje,
-			@RequestParam(required = false) LocalDate ultimaRevision, @RequestParam(required = false) Integer autonomia,
-			@RequestParam(required = false) Estado estado, @RequestParam(required = false) Localidad localidad,
-			@RequestParam(required = false) Boolean esAccesible, @RequestParam(required = false) Puertas puertas,
+			@RequestParam(required = false) LocalDate ultimaRevision, 
+			@RequestParam(required = false) Integer autonomia,
+			@RequestParam(required = false) Estado estado, 
+			@RequestParam(required = false) String localidad,
+			@RequestParam(required = false) Boolean esAccesible, 
+			@RequestParam(required = false) Puertas puertas,
 			@RequestParam(required = false) Tipo tipo, Pageable pageable) {
 		int maxPageSize = 50;
 		int size = pageable.getPageSize() > maxPageSize ? maxPageSize : pageable.getPageSize();
@@ -72,35 +74,32 @@ public class VehiculoController {
 	@GetMapping("/{id}")
 	@Operation(summary = "Devuelve el vehículo por ID", description = "Devuelve todos los datos del vehículo según su ID")
 	public ResponseEntity<Vehiculo> getVehiculoById(@PathVariable int id) {
-		return vehiculoService.buscarPorId(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+	    return vehiculoService.buscarPorId(id)
+	            .map(ResponseEntity::ok)
+	            .orElse(ResponseEntity.notFound().build());
 	}
 
 	@GetMapping("/ubicaciones")
 	@Operation(summary = "Obtiene la ubicación de vehículos disponibles", description = "Devuelve la latitud y longitud de todos los vehículos con estado DISPONIBLE, se puede indicar el tipo opcionalmente")
-	public List<UbicacionVehiculosDTO> getUbicacion(@RequestParam(required = false) Tipo tipo) {
-		return vehiculoService.getUbicaciones(tipo);
+	public ResponseEntity<List<UbicacionVehiculosDTO>> getUbicacion(@RequestParam(required = false) Tipo tipo) {
+		List<UbicacionVehiculosDTO> respuesta = vehiculoService.getUbicaciones(tipo);
+	
+		return ResponseEntity.ok(respuesta);
 	}
 
 	@GetMapping("/localidades")
 	@Operation(summary = "Obtiene todas las localidades dónde hay vehículos disponibles", description = "Devuelve las localidades en la que hay vehículos con estado DISPONIBLE")
-	public List<Localidad> getLocalidades() {
-		return vehiculoService.getLocalidadesDisponibles();
+	public ResponseEntity<List<String>> getLocalidades() {
+		List<String> respuesta = vehiculoService.getLocalidadesDisponibles();
+		
+		return ResponseEntity.ok(respuesta);
 	}
-	
+
 	// PATCH
-	@PatchMapping("/{id}/ubicacion")
-	@SecurityRequirement(name = "bearerAuth")
-	@Operation(summary = "Actualiza la ubicación del vehículo", description = "Usado por mantenimiento o reubicación")
-	public ResponseEntity<Void> actualizarUbicacion(@PathVariable int id,
-			@RequestBody @Valid UbicacionVehiculosDTO dto) {
-
-		boolean actualizado = vehiculoService.actualizarUbicacion(id, dto.getLatitud(), dto.getLongitud(),
-				dto.getLocalidad());
-
-		if (actualizado) {
-			return ResponseEntity.ok().build();
-		} else {
-			return ResponseEntity.badRequest().build();
-		}
+	@PatchMapping("{id}/ubicacion")
+	public ResponseEntity<String> actualizarUbicacion(@PathVariable int id, @RequestBody @Valid ActualizarUbicacionDTO dto) {
+		String respuesta = vehiculoService.actualizarUbicacion(id, dto.getLatitud(), dto.getLongitud());
+		
+		return ResponseEntity.ok(respuesta);
 	}
 }
