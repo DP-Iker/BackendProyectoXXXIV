@@ -1,8 +1,6 @@
 package com.xxxiv.repository;
 
-import com.xxxiv.model.Carnet;
 import com.xxxiv.model.Noticia;
-import com.xxxiv.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
