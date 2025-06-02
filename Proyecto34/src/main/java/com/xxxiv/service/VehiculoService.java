@@ -192,7 +192,6 @@ public class VehiculoService {
 		List<VehiculoEnUsoDTO> resultado = new ArrayList<>();
 
 		for (Viaje viaje : viajesEnCurso) {
-
 			Vehiculo vehiculo = viaje.getVehiculo();
 
 			List<SeguimientoRuta> puntosRuta = rutaRepository.findByViajeIdOrderByIdPuntoIndexAsc(viaje.getId());

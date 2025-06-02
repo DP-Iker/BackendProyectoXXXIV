@@ -33,7 +33,7 @@ import java.util.Optional;
 @SecurityRequirement(name = "bearerAuth")
 public class CarnetController {
 
-	@Autowired
+    @Autowired
     CarnetService carnetService;
 
     @GetMapping
@@ -45,7 +45,7 @@ public class CarnetController {
     public ResponseEntity<Carnet> getCarnetById(@PathVariable Integer usuarioId) {
         Optional<Carnet> carnetOpt = carnetService.findById(usuarioId);
         return carnetOpt.map(ResponseEntity::ok)
-                        .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 
@@ -54,7 +54,7 @@ public class CarnetController {
     public ResponseEntity<String> saveImg(@ModelAttribute CarnetImageDTO dto) throws IOException {
 
        return ResponseEntity.ok(carnetService.saveImg(dto));
-   }
+    }
 
     @GetMapping("/{id}/imagen")
     public ResponseEntity<Resource> obtenerImagen(@PathVariable Integer id) {
@@ -86,7 +86,4 @@ public class CarnetController {
             return ResponseEntity.badRequest().build();
         }
     }
-
-
-
 }
