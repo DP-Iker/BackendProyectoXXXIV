@@ -80,7 +80,9 @@ public class UsuarioController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "Devuelve al usuario por ID", description = "Devuelve todos los datos del usuario de esa ID que hay en la BD")
 	public ResponseEntity<Usuario> getUsuarioById(@PathVariable int id) {
-		return usuarioService.buscarPorId(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+		Usuario usuario = usuarioService.obtenerUsuarioPorId(id);
+		
+		return ResponseEntity.ok(usuario);
 	}
 
 	@GetMapping("/me")
@@ -88,8 +90,7 @@ public class UsuarioController {
 	@Operation(summary = "Devuelve al usuario según su token de sesión", description = "Devuelve todos los datos del usuario que pide la información")
 	public ResponseEntity<UsuarioDTO> obtenerUsuarioAutenticado(Authentication authentication) {
 		String username = authentication.getName();
-		Usuario usuarioDb = usuarioService.buscarPorUsuario(username)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+		Usuario usuarioDb = usuarioService.obtenerUsuarioPorNombre(username);
 
 		// Crea el DTO
 		UsuarioDTO usuario = new UsuarioDTO();
@@ -104,7 +105,7 @@ public class UsuarioController {
 	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "Hace admin al usuario indicado", description = "Da permisos de administrador al usuario seleccionado")
-	public ResponseEntity<Boolean> hacerAdmin(@PathVariable int id) {
+	public ResponseEntity<Void> hacerAdmin(@PathVariable int id) {
 		usuarioService.hacerAdmin(id);
 
 		return ResponseEntity.noContent().build();
@@ -114,9 +115,19 @@ public class UsuarioController {
 	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "Bloquea usuario indicado", description = "Bloquea al usuario seleccionado")
-	public ResponseEntity<Boolean> bloquearUsuario(@PathVariable int id, @RequestBody @Valid BloqueoUsuarioDTO dto) {
+	public ResponseEntity<Void> bloquearUsuario(@PathVariable int id, @RequestBody @Valid BloqueoUsuarioDTO dto) {
 		String mensaje = dto.getMensaje();
 		usuarioService.bloquearUsuario(id, mensaje);
+
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PatchMapping("/desbloquear/{id}")
+	@SecurityRequirement(name = "bearerAuth")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "Bloquea usuario indicado", description = "Bloquea al usuario seleccionado")
+	public ResponseEntity<Void> desbloquearUsuario(@PathVariable int id) {
+		usuarioService.desbloquearUsuario(id);
 
 		return ResponseEntity.noContent().build();
 	}
@@ -136,15 +147,15 @@ public class UsuarioController {
 	@PatchMapping(value = "/me/cambiar-foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@SecurityRequirement(name = "bearerAuth")
 	@Operation(summary = "Cambia la foto de perfil", description = "Cambia la foto de perfil del usuario logueado")
-	public ResponseEntity<?> cambiarFotoPerfil(Authentication authentication, @RequestPart("foto") MultipartFile foto) throws IOException {
+	public ResponseEntity<Void> cambiarFotoPerfil(Authentication authentication, @RequestPart("foto") MultipartFile foto) throws IOException {
 		// No envia nada
 		if (foto == null || foto.isEmpty()) {
-	        return ResponseEntity.badRequest().body("No se ha subido ningún archivo");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se ha subido ningún archivo");
 	    }
 
 		// El archivo no es una foto
 	    if (!foto.getContentType().startsWith("image/")) {
-	        return ResponseEntity.badRequest().body("Solo se permiten archivos de imagen");
+	    	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo se permiten archivos de imagen");
 	    }
 		
 		String usuario = authentication.getName();
@@ -171,8 +182,7 @@ public class UsuarioController {
 	@Operation(summary = "Elimina al usuario según su token de sesión", description = "Elimina al usuario de la BD con el token de sesión")
 	public ResponseEntity<Void> eliminarUsuarioPropio(Authentication authentication) {
 		String username = authentication.getName();
-		Usuario usuario = usuarioService.buscarPorUsuario(username)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+		Usuario usuario = usuarioService.obtenerUsuarioPorNombre(username);
 
 		usuarioService.eliminarUsuario(usuario.getId());
 

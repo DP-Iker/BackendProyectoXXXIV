@@ -48,14 +48,7 @@ public class Reserva {
             foreignKey = @ForeignKey(name = "fk_reserva_parking_recogida")
     )
     private Parking parkingRecogida;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "parking_devolucion_id",
-            foreignKey = @ForeignKey(name = "fk_reserva_parking_devolucion")
-    )
-    private Parking parkingDevolucion;
-
+    
     @CreationTimestamp
     @Column(name = "fecha_reserva", nullable = false, updatable = false)
     private LocalDateTime fechaReserva;

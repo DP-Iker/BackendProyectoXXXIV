@@ -57,4 +57,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+    
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI(); // Incluye contexto
+        return uri.startsWith("/v1/auth");
+    }
 }

@@ -2,15 +2,14 @@ package com.xxxiv.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.xxxiv.dto.*;
-import com.xxxiv.model.Viaje;
-import com.xxxiv.repository.ViajeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.Estado;
@@ -25,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 public class VehiculoService {
 	
 	private final VehiculoRepository vehiculoRepository;
-	private final ViajeRepository viajeRepository;
     private final LocalidadService webClientService;
 	/**
 	 * Busca los vehículos según el filtro y los devuelve en página
@@ -45,8 +43,9 @@ public class VehiculoService {
 	 * @param id ID del vehículo
 	 * @return Devuelve el vehiculo o un 404
 	 */
-	public Optional<Vehiculo> buscarPorId(int id) {
-	    return vehiculoRepository.findById(id);
+	public Vehiculo obtenerVehiculoPorId(int id) {
+	    return vehiculoRepository.findById(id)
+	    		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vehículo con id "+ id +" no encontrado"));
 	}
 
 	/**
@@ -130,22 +129,30 @@ public class VehiculoService {
 	
 	
 	// PATCH
+	/**
+	 * Edita el vehículo
+	 * @param id ID del vehículo
+	 * @param dto DTO con los campos a cambiar (opcional)
+	 * @param imagenUrl Imagen a cambiar (opcional)
+	 */
 	public void editarVehiculo(int id, EditarVehiculoDTO dto, String imagenUrl) {
-		Vehiculo vehiculo = buscarPorId(id)
-				.orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado"));
+		Vehiculo vehiculo = obtenerVehiculoPorId(id);
 
-	    if (dto.getMarca() != null) vehiculo.setMarca(dto.getMarca());
-	    if (dto.getModelo() != null) vehiculo.setModelo(dto.getModelo());
-	    if (dto.getKilometraje() != null) vehiculo.setKilometraje(dto.getKilometraje());
-	    if (dto.getUltimaRevision() != null) vehiculo.setUltimaRevision(dto.getUltimaRevision());
-	    if (dto.getAutonomia() != null) vehiculo.setAutonomia(dto.getAutonomia());
-	    if (dto.getEstado() != null) vehiculo.setEstado(dto.getEstado());
-	    if (dto.getLatitud() != null) vehiculo.setLatitud(dto.getLatitud());
-	    if (dto.getLongitud() != null) vehiculo.setLongitud(dto.getLongitud());
-	    if (dto.getLocalidad() != null) vehiculo.setLocalidad(dto.getLocalidad());
-	    if (dto.getTipo() != null) vehiculo.setTipo(dto.getTipo());
-	    if (dto.getPuertas() != null) vehiculo.setPuertas(dto.getPuertas());
-	    if (dto.getEsAccesible() != null) vehiculo.setEsAccesible(dto.getEsAccesible());
+		if (dto != null) {
+			if (dto.getMarca() != null) vehiculo.setMarca(dto.getMarca());
+			if (dto.getModelo() != null) vehiculo.setModelo(dto.getModelo());
+			if (dto.getKilometraje() != null) vehiculo.setKilometraje(dto.getKilometraje());
+			if (dto.getUltimaRevision() != null) vehiculo.setUltimaRevision(dto.getUltimaRevision());
+			if (dto.getAutonomia() != null) vehiculo.setAutonomia(dto.getAutonomia());
+			if (dto.getEstado() != null) vehiculo.setEstado(dto.getEstado());
+			if (dto.getLatitud() != null) vehiculo.setLatitud(dto.getLatitud());
+			if (dto.getLongitud() != null) vehiculo.setLongitud(dto.getLongitud());
+			if (dto.getLocalidad() != null) vehiculo.setLocalidad(dto.getLocalidad());
+	    	if (dto.getTipo() != null) vehiculo.setTipo(dto.getTipo());
+	    	if (dto.getPuertas() != null) vehiculo.setPuertas(dto.getPuertas());
+	    	if (dto.getEsAccesible() != null) vehiculo.setEsAccesible(dto.getEsAccesible());
+		}
+	    
 	    if (imagenUrl != null) vehiculo.setImagen(imagenUrl);
 
 	    vehiculoRepository.save(vehiculo);
@@ -154,16 +161,15 @@ public class VehiculoService {
 
 	/**
 	 * Actualiza la ubicacion del vehículo (Consulta a una API externa la localidad más cercana)
+	 * 
 	 * @param id ID del vehículo
 	 * @param latitud Nueva latitud
 	 * @param longitud Nueva longitud
-	 * @return Devuelve un String si ha funcionado
 	 */
-	public String actualizarUbicacion(int id, double latitud, double longitud) {
+	public void actualizarUbicacion(int id, double latitud, double longitud) {
 		String localidad = webClientService.obtenerLocalidad(latitud, longitud);
 		
-		Vehiculo vehiculo = buscarPorId(id)
-				.orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado"));
+		Vehiculo vehiculo = obtenerVehiculoPorId(id);
 		
 		// Modifica el vehículo
 		vehiculo.setLatitud(latitud);
@@ -171,6 +177,16 @@ public class VehiculoService {
 		vehiculo.setLocalidad(localidad);
 		
 		vehiculoRepository.save(vehiculo);
-		return "true";
+	}
+	
+	/**
+	 * Elimina el vehículo
+	 * 
+	 * @param id ID del vehículo
+	 */
+	public void eliminarVehiculo(int id) {
+		Vehiculo vehiculo = obtenerVehiculoPorId(id);
+		
+		vehiculoRepository.delete(vehiculo);
 	}
 }

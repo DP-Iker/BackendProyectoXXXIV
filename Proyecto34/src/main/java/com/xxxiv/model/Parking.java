@@ -1,6 +1,5 @@
 package com.xxxiv.model;
 
-import com.xxxiv.model.Coordinate;
 import com.xxxiv.util.CoordinateListConverter;
 import jakarta.persistence.*;
 import lombok.Data;

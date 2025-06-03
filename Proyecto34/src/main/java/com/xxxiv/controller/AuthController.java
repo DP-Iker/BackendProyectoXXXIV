@@ -16,14 +16,12 @@ import com.xxxiv.model.Usuario;
 import com.xxxiv.service.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/auth")
-@SecurityRequirement(name = "")
 public class AuthController {
 	
 	private final AuthService authService;

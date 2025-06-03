@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ViajeCrearDTO {
+public class CrearViajeDTO {
 	
 	    @NotNull(message = "La fecha de inicio es obligatoria")
 	    @PastOrPresent(message = "La fecha de inicio no puede ser futura")

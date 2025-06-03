@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.xxxiv.dto.ViajeActualizarDTO;
-import com.xxxiv.dto.ViajeCrearDTO;
+import com.xxxiv.dto.CrearViajeDTO;
 import com.xxxiv.dto.ViajeMostrarDTO;
 import com.xxxiv.model.Usuario;
 import com.xxxiv.model.Vehiculo;
@@ -39,10 +39,8 @@ import lombok.RequiredArgsConstructor;
 public class ViajeController {
 
 	private final ViajeService viajeService;
-	private final UsuarioService usuarioService;
-	private final VehiculoService vehiculoService;
-	private final VehiculoRepository vehiculoRepository;
-
+	
+	// GET
 	@GetMapping
 	@Operation(summary = "Devuelve todos los viajes", description = "Devuelve todos los viajes que hay en la BD")
 	public List<ViajeMostrarDTO> getAll() {
@@ -50,63 +48,31 @@ public class ViajeController {
 	}
 
 	@GetMapping("/{id}")
-	@Operation(summary = "Devuelve el viaje por ID", description = "Devuelve toda la info del viaje por su ID")
-	public Optional<Viaje> getById(@PathVariable Integer id) {
-		return viajeService.buscarPorId(id);
+	public ResponseEntity<ViajeMostrarDTO> getById(@PathVariable Integer id) {
+	    Viaje viaje = viajeService.obtenerViajePorId(id);
+	    ViajeMostrarDTO dto = ViajeMostrarDTO.fromEntity(viaje);
+	    
+	    return ResponseEntity.ok(dto);
 	}
 
+	
+	// POST
 	@PostMapping
-	@Operation(summary = "Crea un viaje", description = "")
-	public Viaje create(@Valid @RequestBody ViajeCrearDTO dto) {
-		// 1. Buscar usuario por ID
-		Usuario usuario = usuarioService.buscarPorId(dto.getUsuarioId())
-				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-		// 2. Buscar vehículo por ID
-		Vehiculo vehiculo = vehiculoService.buscarPorId(dto.getVehiculoId())
-				.orElseThrow(() -> new RuntimeException("Vehiculo no encontrado"));
-
-		// 3. Verificar estado actual del vehículo
-		if (vehiculo.getEstado() != Estado.DISPONIBLE) {
-			throw new RuntimeException("El vehículo no está disponible para un nuevo viaje");
-		}
-
-		// 4. Actualizar estado del vehículo
-		vehiculo.setEstado(Estado.EN_USO);
-		vehiculo.setLatitud(dto.getLatitud());
-		vehiculo.setLongitud(dto.getLongitud());
-		vehiculo.setLocalidad(dto.getLocalidad());
-
-		vehiculoRepository.save(vehiculo);
-
-		// 5. Convertir DTO a entidad Viaje sin usuario ni vehículo
-		Viaje viaje = dto.toEntity();
-
-		// 6. Asignar las entidades usuario y vehículo completas al viaje
-		viaje.setUsuario(usuario);
-		viaje.setVehiculo(vehiculo);
-
-		// 7. Guardar el viaje en la base de datos y devolverlo
-		return viajeService.save(viaje);
+	@Operation(summary = "Crea un viaje", description = "Crea un viaje en la BD")
+	public ResponseEntity<ViajeMostrarDTO> create(@Valid @RequestBody CrearViajeDTO dto) {
+	    Viaje viaje = viajeService.crearViaje(dto);
+	    return ResponseEntity.ok(ViajeMostrarDTO.fromEntity(viaje));
 	}
 
+
+	// PATCH
 	@PatchMapping("/{id}")
 	@Operation(summary = "Actualiza parcialmente un viaje", description = "Finalización y ubicación")
-	public Viaje actualizarViaje(@PathVariable Integer id, @RequestBody ViajeActualizarDTO dto) {
-
-		Viaje viaje = viajeService.buscarPorId(id).orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
-
-		vehiculoService.actualizarUbicacion(viaje.getVehiculo().getId(), dto.getLatitud(), dto.getLongitud());
-
-		if (dto.getFechaFin() != null) {
-			viaje.setFechaFin(dto.getFechaFin());
-		}
-		if (dto.getKmRecorridos() != null) {
-			viaje.setKmRecorridos(dto.getKmRecorridos());
-		}
-
-		return viajeService.save(viaje);
+	public ResponseEntity<ViajeMostrarDTO> actualizarViaje(@PathVariable Integer id, @RequestBody ViajeActualizarDTO dto) {
+	    Viaje viajeActualizado = viajeService.actualizarParcialmente(id, dto);
+	    return ResponseEntity.ok(ViajeMostrarDTO.fromEntity(viajeActualizado));
 	}
+
 
 	@PatchMapping("/{id}/finalizar")
 	public ResponseEntity<ViajeMostrarDTO> finalizarViaje(@PathVariable Integer id,

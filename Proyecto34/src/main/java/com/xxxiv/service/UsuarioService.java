@@ -1,7 +1,5 @@
 package com.xxxiv.service;
 
-import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,24 +33,27 @@ public class UsuarioService {
 	}
 
 	/**
-	 * Busca al usuario con el ID indicado
+	 * Busca al usuario por ID
 	 * 
 	 * @param id ID del usuario
-	 * @return Usuario con el ID
+	 * @return Devuelve el usuario, si no da un error 404
 	 */
-	public Optional<Usuario> buscarPorId(int id) {
-		return usuarioRepository.findById(id);
+	public Usuario obtenerUsuarioPorId(int id) {
+	    return usuarioRepository.findById(id)
+	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con id "+ id +" no encontrado"));
 	}
 	
 	/**
-	 * Busca al usuario por el nombre de usuario
+	 * Busca al usuario por nombre de usuario
 	 * 
-	 * @param usuario Nombre de usuario
-	 * @return Usuario
+	 * @param nombreUsuario Nombre del usuario
+	 * @return Devuelve el usuario, si no da un error 404
 	 */
-	public Optional<Usuario> buscarPorUsuario(String usuario) {
-		return usuarioRepository.findByUsuario(usuario);
+	public Usuario obtenerUsuarioPorNombre(String nombreUsuario) {
+	    return usuarioRepository.findByUsuario(nombreUsuario)
+	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 	}
+	
 
 	// DELETE
 	/**
@@ -62,9 +63,7 @@ public class UsuarioService {
 	 * @return Mensaje diciendo si se ha borrado
 	 */
 	public void eliminarUsuario(int id) {
-		Usuario usuario = buscarPorId(id)
-		        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID " + id + " no encontrado"));
-		
+		Usuario usuario = obtenerUsuarioPorId(id);
 		
 		usuarioRepository.delete(usuario);
 	}
@@ -75,11 +74,10 @@ public class UsuarioService {
 	 * @param id ID del usuario
 	 */
 	public void hacerAdmin(int id) {
-		Usuario usuario = buscarPorId(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID " + id + " no encontrado"));
+		Usuario usuario = obtenerUsuarioPorId(id);
 		
 		usuario.setEsAdministrador(true);
-		usuarioRepository.save(usuario);;
+		usuarioRepository.save(usuario);
 	}
 	
 	/**
@@ -89,11 +87,23 @@ public class UsuarioService {
 	 * @param mensaje Mensaje sobre el motivo del bloqueo
 	 */
 	public void bloquearUsuario(int id, String mensaje) {
-		Usuario usuario = buscarPorId(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID " + id + " no encontrado"));
+		Usuario usuario = obtenerUsuarioPorId(id);
 		
 		usuario.setEstaBloqueado(true);
 		usuario.setMotivoBloqueo(mensaje);
+		usuarioRepository.save(usuario);
+	}
+	
+	/**
+	 * Bloquea al usuario con el ID indicado
+	 * 
+	 * @param id ID del usuario
+	 * @param mensaje Mensaje sobre el motivo del bloqueo
+	 */
+	public void desbloquearUsuario(int id) {
+		Usuario usuario = obtenerUsuarioPorId(id);
+		
+		usuario.setEstaBloqueado(false);
 		usuarioRepository.save(usuario);
 	}
 	
@@ -104,12 +114,11 @@ public class UsuarioService {
 	 * @param email Email
 	 */
 	public void cambiarEmail(String nombreUsuario, String email) {
-		Usuario usuario = usuarioRepository.findByUsuario(nombreUsuario)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID no encontrado"));
+		Usuario usuario = obtenerUsuarioPorNombre(nombreUsuario);
 		
 		// Revisa si existe un usuario con ese correo
 		if (usuarioRepository.existsByEmail(email)) {
-			new ResponseStatusException(HttpStatus.CONFLICT, "El email ya está en uso");
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "El email ya está en uso");
 		}
 		
 		usuario.setEmail(email);
@@ -123,8 +132,7 @@ public class UsuarioService {
 	 * @param email Email
 	 */
 	public void cambiarFotoPerfil(String nombreUsuario, String foto) {
-		Usuario usuario = usuarioRepository.findByUsuario(nombreUsuario)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID no encontrado"));
+		Usuario usuario = obtenerUsuarioPorNombre(nombreUsuario);
 		
 		usuario.setFoto(foto);
 		usuarioRepository.save(usuario);

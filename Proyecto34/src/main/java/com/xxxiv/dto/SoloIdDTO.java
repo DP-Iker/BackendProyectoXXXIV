@@ -1,0 +1,12 @@
+package com.xxxiv.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class SoloIdDTO {
+    private int id;
+}
