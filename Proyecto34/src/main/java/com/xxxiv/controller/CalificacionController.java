@@ -1,5 +1,6 @@
 package com.xxxiv.controller;
 
+import com.xxxiv.dto.CalificacionDTO;
 import com.xxxiv.model.Calificacion;
 import com.xxxiv.service.CalificacionService;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,10 +33,9 @@ public class CalificacionController {
     }
 
     @GetMapping("/vehiculo/{id}")
-    public ResponseEntity<List<Calificacion>> obtenerPorIdVehiculo(@PathVariable Integer id) {
-
-        List<Calificacion> todas = calificacionService.buscarPorIdVehiculo(id);
-        return ResponseEntity.ok(todas);
+    public ResponseEntity<List<CalificacionDTO>> obtenerPorIdVehiculo(@PathVariable Integer id) {
+        List<CalificacionDTO> dtos = calificacionService.buscarPorIdVehiculo(id);
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{id}")
