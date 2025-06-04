@@ -104,21 +104,26 @@ public class CarnetService {
      * @throws IOException
      */
     private String guardarImagenLocal(MultipartFile archivo, Integer usuarioId) throws IOException {
+        // Crear el directorio si no existe
         File directorio = new File(uploadDir);
         if (!directorio.exists()) {
             directorio.mkdirs();
         }
 
+        // Obtener la extensión
         String extension = Optional.ofNullable(archivo.getOriginalFilename())
                 .filter(f -> f.contains("."))
                 .map(f -> f.substring(f.lastIndexOf(".")))
                 .orElse(".jpg");
 
+        // Nombre del archivo
         String nombreArchivo = "carnet_usuario_" + usuarioId + extension;
-        Path ruta = Paths.get(uploadDir).resolve(nombreArchivo);
 
+        // Ruta completa
+        Path ruta = Paths.get(uploadDir).resolve(nombreArchivo);
         Files.copy(archivo.getInputStream(), ruta, StandardCopyOption.REPLACE_EXISTING);
 
-        return ruta.toAbsolutePath().toString();
+        // Devolver la ruta pública accesible desde el frontend
+        return "/uploads/carnets/" + nombreArchivo;
     }
 }
