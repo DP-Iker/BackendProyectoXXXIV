@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +29,7 @@ import com.xxxiv.dto.UsuarioDTO;
 import com.xxxiv.model.Usuario;
 import com.xxxiv.service.ImgurService;
 import com.xxxiv.service.UsuarioService;
+import com.xxxiv.util.PageableNormalizer;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,6 +44,7 @@ import lombok.RequiredArgsConstructor;
 public class UsuarioController {
 	private final UsuarioService usuarioService;
 	private final ImgurService imgurService;
+	private final PageableNormalizer pageableNormalizer;
 
 	// GET
 	@GetMapping
@@ -57,11 +58,8 @@ public class UsuarioController {
 			@RequestParam(required = false) String email, @RequestParam(required = false) Boolean estaBloqueado,
 			@RequestParam(required = false) Boolean esAdministrador,
 			@RequestParam(required = false) LocalDateTime createdAt, Pageable pageable) {
-		// Controla que el tamaño no sea excesivo
-		int maxPageSize = 50; // Límite de elementos por página
-		int size = pageable.getPageSize() > maxPageSize ? maxPageSize : pageable.getPageSize();
-
-		Pageable safePageable = PageRequest.of(pageable.getPageNumber(), size, pageable.getSort());
+		
+		Pageable safePageable = pageableNormalizer.normalize(pageable);
 
 		// Crea el filtro
 		FiltroUsuariosDTO filtro = new FiltroUsuariosDTO();

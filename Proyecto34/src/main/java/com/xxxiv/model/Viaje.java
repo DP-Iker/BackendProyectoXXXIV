@@ -1,6 +1,6 @@
 package com.xxxiv.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -28,59 +28,31 @@ public class Viaje {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "usuario_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_viaje_usuario"))
 	private Usuario usuario;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "vehiculo_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_viaje_vehiculo"))
 	private Vehiculo vehiculo;
 
+	@OneToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "reserva_id", referencedColumnName = "id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_viaje_reserva"))
+	private Reserva reserva;
+
 	@Column(name = "fecha_inicio", nullable = false)
-	private LocalDate fechaInicio;
+	private LocalDateTime fechaInicio;
 
 	@Column(name = "fecha_fin")
-	private LocalDate fechaFin;
+	private LocalDateTime fechaFin;
 
 	@Column(name = "km_recorridos")
 	private Integer kmRecorridos;
-	
+
 	@Column(name = "precio")
 	private Double precio;
 
-    @Convert(converter = CoordinateListConverter.class)
-    @Column(columnDefinition = "JSON", nullable = false)
-    private List<Coordinate> cods;
-
-	// Método para calcular el precio del viaje
-	public Double calcularPrecio() {
-		if (kmRecorridos == null || vehiculo == null || vehiculo.getTipo() == null) {
-			return 0.0;
-		}
-		double precioPorKm;
-		switch (vehiculo.getTipo()) {
-		case TURISMO:
-			precioPorKm = 0.5;
-			break;
-		case SUV:
-			precioPorKm = 0.7;
-			break;
-		case BIPLAZA:
-			precioPorKm = 0.4;
-			break;
-		case MONOVOLUMEN:
-			precioPorKm = 0.6;
-			break;
-		default:
-			precioPorKm = 0.5;
-		}
-		return kmRecorridos * precioPorKm;
-	}
-
-	public void finalizarViaje(LocalDate fechaFin, Integer kmRecorridos) {
-		this.setFechaFin(fechaFin);
-		this.setKmRecorridos(kmRecorridos);
-		this.setPrecio(calcularPrecio());
-	}
-
+	@Convert(converter = CoordinateListConverter.class)
+	@Column(columnDefinition = "JSON", nullable = false)
+	private List<Coordinate> cods;
 }

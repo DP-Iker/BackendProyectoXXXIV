@@ -58,7 +58,7 @@ public class ParkingController {
     @GetMapping("/{id}")
     public ResponseEntity<Parking> getById(@PathVariable Integer id) {
         try {
-            Parking parking = parkingService.findById(id);
+            Parking parking = parkingService.obtenerParkingPorId(id);
             return ResponseEntity.ok(parking);
         } catch (EntityNotFoundException ex) {
             return ResponseEntity.notFound().build();

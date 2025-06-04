@@ -61,6 +61,7 @@ public class ReservaService {
     
     /**
      * Crea una reserva al usuario
+     * 
      * @param nombreUsuario Nombre del usuario
      * @param dto DTO con los campos necesarios
      * @return Devuelve la Reserva creada
@@ -176,6 +177,7 @@ public class ReservaService {
     @Transactional
     public void cancelarReserva(int id) {
     	Reserva reserva = obtenerReservaPorId(id);
+    	
     	aplicarCancelacion(reserva);
     }
     
@@ -193,9 +195,9 @@ public class ReservaService {
     }
     
     /**
-     * Cancela las reservas pendientes que hace 5 min que se crearon
+     * Cancela las reservas pendientes que hace 30 min que se crearon
      */
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     @Transactional
     public void cancelarReservasVencidas() {
         LocalDateTime limite = LocalDateTime.now().minusMinutes(30);
@@ -215,8 +217,6 @@ public class ReservaService {
      * @param id ID de la reserva
      */
     public void eliminarReserva(int id) {
-    	Reserva reserva = obtenerReservaPorId(id);
-    	
-        reservaRepository.delete(reserva);
+    	reservaRepository.deleteById(id);
     }
 }

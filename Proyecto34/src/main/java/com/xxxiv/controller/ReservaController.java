@@ -4,10 +4,10 @@ import com.xxxiv.dto.CrearReservaDTO;
 import com.xxxiv.dto.FiltroReservasDTO;
 import com.xxxiv.dto.ReservaDTO;
 import com.xxxiv.model.Reserva;
-import com.xxxiv.model.Usuario;
 import com.xxxiv.model.enums.EstadoReserva;
 import com.xxxiv.service.ReservaService;
 import com.xxxiv.service.UsuarioService;
+import com.xxxiv.util.PageableNormalizer;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,17 +34,13 @@ public class ReservaController {
 
     private final ReservaService reservaService;
     private final UsuarioService usuarioService;
-    private Pageable normalize(Pageable p) {
-	    int max = 50;
-	    int size = Math.min(p.getPageSize(), max);
-	    return PageRequest.of(p.getPageNumber(), size, p.getSort());
-	}
+    private final PageableNormalizer pageableNormalizer;
 
     // GET
-    @SecurityRequirement(name = "bearerAuth")
-	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/admin")
-	@Operation(summary = "Devuelve todas las reservas", description = "Devuelve todas los reservas que hay en la BD")
+	@SecurityRequirement(name = "bearerAuth")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "Devuelve todas las reservas", description = "Devuelve todas las reservas que hay en la BD")
 	@Parameters({ 
 	    @Parameter(name = "page", description = "Número de página", example = "0"),
 	    @Parameter(name = "size", description = "Cantidad de elementos por página", example = "10"),
@@ -58,7 +53,7 @@ public class ReservaController {
 	        @RequestParam(required = false) LocalDateTime fechaReserva,
 	        Pageable pageable) 
 	{
-	    Pageable safePageable = normalize(pageable);
+	    Pageable safePageable = pageableNormalizer.normalize(pageable);
 
 	    FiltroReservasDTO filtro = new FiltroReservasDTO();
 	    filtro.setUsuarioId(usuarioId);
@@ -86,11 +81,10 @@ public class ReservaController {
 	        @RequestParam(required = false) LocalDateTime fechaReserva,
 	        Pageable pageable) 
 	{
-	    Pageable safePageable = normalize(pageable);
+    	Pageable safePageable = pageableNormalizer.normalize(pageable);
 	    // Consigue el id del usuario con el token
 	    String username = authentication.getName();
-		Usuario usuarioDb = usuarioService.obtenerUsuarioPorNombre(username);
-		int usuarioId = usuarioDb.getId();
+	    int usuarioId = usuarioService.obtenerUsuarioPorNombre(username).getId();
 
 	    FiltroReservasDTO filtro = new FiltroReservasDTO();
 	    filtro.setUsuarioId(usuarioId);
@@ -118,7 +112,7 @@ public class ReservaController {
     }
     
     // PATCH
-    @PatchMapping("/confirmar/{id}")
+    @PatchMapping("/{id}/confirmar")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Confirma una reserva", description = "Confirma una reserva si es el usuario que la creó y pone en uso el vehículo")
     public ResponseEntity<Void> confirmarReserva(Authentication authentication, @PathVariable int id) {
@@ -128,7 +122,7 @@ public class ReservaController {
         return ResponseEntity.noContent().build();
     }
     
-    @PatchMapping("/cancelar/{id}")
+    @PatchMapping("/{id}/cancelar")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Cancela una reserva propia", description = "Cancela una reserva si es el usuario que la creó y libera el vehículo")
     public ResponseEntity<Void> cancelarReservaPropia(Authentication authentication, @PathVariable int id) {
@@ -138,7 +132,7 @@ public class ReservaController {
         return ResponseEntity.noContent().build();
     }
     
-    @PatchMapping("/admin/cancelar/{id}")
+    @PatchMapping("/admin/{id}/cancelar")
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Cancela una reserva", description = "Cancela una reserva y libera el vehículo")

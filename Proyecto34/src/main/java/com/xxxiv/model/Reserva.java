@@ -22,8 +22,7 @@ public class Reserva {
 	@JoinColumn(name = "usuario_id", nullable = false, foreignKey = @ForeignKey(name = "fk_reserva_usuario"))
 	private Usuario usuario;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "viaje_id", nullable = false, foreignKey = @ForeignKey(name = "fk_reserva_viaje"))
+	@OneToOne(mappedBy = "reserva", fetch = FetchType.LAZY)
 	private Viaje viaje;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)

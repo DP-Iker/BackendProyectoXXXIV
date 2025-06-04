@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +33,7 @@ import com.xxxiv.model.enums.Puertas;
 import com.xxxiv.model.enums.Tipo;
 import com.xxxiv.service.ImgurService;
 import com.xxxiv.service.VehiculoService;
+import com.xxxiv.util.PageableNormalizer;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -49,11 +49,7 @@ public class VehiculoController {
 
 	private final VehiculoService vehiculoService;
 	private final ImgurService imgurService;
-	private Pageable normalize(Pageable p) {
-	    int max = 50;
-	    int size = Math.min(p.getPageSize(), max);
-	    return PageRequest.of(p.getPageNumber(), size, p.getSort());
-	}
+	private final PageableNormalizer pageableNormalizer;
 
 	// GET
 	@SecurityRequirement(name = "bearerAuth")
@@ -77,7 +73,7 @@ public class VehiculoController {
 	        @RequestParam(required = false) Tipo tipo,
 	        Pageable pageable) 
 	{
-	    Pageable safePageable = normalize(pageable);
+		Pageable safePageable = pageableNormalizer.normalize(pageable);
 
 	    FiltroVehiculosDTO filtro = new FiltroVehiculosDTO();
 	    filtro.setMarca(marca);
@@ -111,7 +107,7 @@ public class VehiculoController {
 	        @RequestParam(required = false) Tipo tipo,
 	        Pageable pageable) 
 	{
-	    Pageable safePageable = normalize(pageable);
+		Pageable safePageable = pageableNormalizer.normalize(pageable);
 
 	    FiltroVehiculosDTO filtro = new FiltroVehiculosDTO();
 	    filtro.setMarca(marca);

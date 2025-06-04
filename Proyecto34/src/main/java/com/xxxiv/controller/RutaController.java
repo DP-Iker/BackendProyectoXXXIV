@@ -2,9 +2,12 @@ package com.xxxiv.controller;
 
 import com.xxxiv.dto.RutaDTO;
 import com.xxxiv.service.RutaService;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +35,8 @@ public class RutaController {
     }
 
     @GetMapping("/activas")
+    @SecurityRequirement(name = "bearerAuth")
+	@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<RutaDTO>> obtenerRutasActivas() {
         List<RutaDTO> rutasActivas = rutaService.obtenerRutasActivas();
         return ResponseEntity.ok(rutasActivas);

@@ -92,8 +92,7 @@ public class NoticiaController {
                 return ResponseEntity.badRequest().build();
             }
 
-            Usuario usuario = usuarioService.buscarPorUsuario(dto.getUsuario())
-                    .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+            Usuario usuario = usuarioService.obtenerUsuarioPorNombre(dto.getUsuario());
 
 
             Noticia noticia = new Noticia();
@@ -125,8 +124,7 @@ public class NoticiaController {
                 return ResponseEntity.badRequest().build();
             }
 
-            Usuario usuario = usuarioService.buscarPorUsuario(dto.getUsuario())
-                    .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+            Usuario usuario = usuarioService.obtenerUsuarioPorNombre(dto.getUsuario());
 
             Noticia noticia = new Noticia();
             noticia.setTitulo(dto.getTitulo());
