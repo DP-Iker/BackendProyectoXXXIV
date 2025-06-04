@@ -189,8 +189,8 @@ public class VehiculoController {
 	}
 
 	@PatchMapping("{id}/ubicacion")
-	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
+	@SecurityRequirement(name = "bearerAuth")
 	@Operation(summary = "Actualiza la ubicación de un vehículo", description = "Modifica la latitud y longitud de un vehículo en base a su ID")
 	public ResponseEntity<Void> actualizarUbicacion(@PathVariable int id, @RequestBody @Valid ActualizarUbicacionDTO dto) {
 		vehiculoService.actualizarUbicacion(id, dto.getLatitud(), dto.getLongitud());

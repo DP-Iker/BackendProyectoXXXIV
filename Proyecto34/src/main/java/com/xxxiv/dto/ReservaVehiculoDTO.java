@@ -1,6 +1,7 @@
 package com.xxxiv.dto;
 
 import com.xxxiv.model.Vehiculo;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

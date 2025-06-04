@@ -1,9 +1,9 @@
 package com.xxxiv.dto;
 
+import java.time.format.DateTimeFormatter;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor

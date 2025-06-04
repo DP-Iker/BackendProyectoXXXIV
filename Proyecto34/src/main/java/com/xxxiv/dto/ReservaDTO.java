@@ -1,14 +1,13 @@
 package com.xxxiv.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 import com.xxxiv.model.Reserva;
 import com.xxxiv.model.enums.EstadoReserva;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor

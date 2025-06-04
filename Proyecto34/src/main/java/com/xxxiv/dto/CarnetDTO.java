@@ -1,10 +1,11 @@
 package com.xxxiv.dto;
 
+import java.time.LocalDate;
+
 import com.xxxiv.model.enums.EstadoCarnet;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor

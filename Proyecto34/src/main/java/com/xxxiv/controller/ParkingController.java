@@ -1,34 +1,26 @@
 package com.xxxiv.controller;
 
-import com.xxxiv.dto.FiltroNoticiasDTO;
 import com.xxxiv.dto.FiltroParkingDTO;
-import com.xxxiv.dto.NoticiaDTO;
 import com.xxxiv.dto.ParkingDTO;
-import com.xxxiv.model.Noticia;
 import com.xxxiv.model.Parking;
 import com.xxxiv.service.ParkingService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/parkings")
-@SecurityRequirement(name = "bearerAuth")
 public class ParkingController {
 
     private final ParkingService parkingService;
-
-    public ParkingController(ParkingService parkingService) {
-        this.parkingService = parkingService;
-    }
 
 
     @GetMapping
@@ -67,12 +59,16 @@ public class ParkingController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+	@SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Parking> create(@RequestBody ParkingDTO payload) {
         Parking created = parkingService.create(payload);
         return ResponseEntity.status(201).body(created);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+	@SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Parking> update(
             @PathVariable Integer id,
             @RequestBody ParkingDTO payload
@@ -87,6 +83,8 @@ public class ParkingController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+	@SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         try {
             parkingService.delete(id);

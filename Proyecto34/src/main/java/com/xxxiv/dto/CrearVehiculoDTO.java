@@ -6,8 +6,12 @@ import com.xxxiv.model.enums.Estado;
 import com.xxxiv.model.enums.Puertas;
 import com.xxxiv.model.enums.Tipo;
 
-import jakarta.validation.constraints.*;
-
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data

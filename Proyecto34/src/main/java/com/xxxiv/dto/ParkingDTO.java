@@ -1,12 +1,13 @@
 package com.xxxiv.dto;
 
-import com.xxxiv.model.Coordinate;
-import com.xxxiv.model.Parking;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.xxxiv.model.Coordinate;
+import com.xxxiv.model.Parking;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor

@@ -69,6 +69,12 @@ public class ReservaService {
     @Transactional
     public Reserva crearReserva(String nombreUsuario, CrearReservaDTO dto) {
         Usuario usuario = usuarioService.obtenerUsuarioPorNombre(nombreUsuario);
+        
+        // Revisa que el usuario no tenga ninguna reserva pendiente
+        boolean tieneReservaPendiente = reservaRepository.existsByUsuarioAndEstado(usuario, EstadoReserva.PENDIENTE);
+        if (tieneReservaPendiente) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya tienes una reserva pendiente");
+        }
 
         // // Busca si el vehículo existe y está disponible
         Vehiculo vehiculo = vehiculoService.obtenerVehiculoPorId(dto.getVehiculoId());

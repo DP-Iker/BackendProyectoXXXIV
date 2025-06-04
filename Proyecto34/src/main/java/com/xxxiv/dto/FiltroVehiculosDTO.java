@@ -1,11 +1,14 @@
 package com.xxxiv.dto;
 
 import java.time.LocalDate;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.xxxiv.model.enums.Estado;
 import com.xxxiv.model.enums.Puertas;
 import com.xxxiv.model.enums.Tipo;
+
 import jakarta.validation.constraints.Min;
-import org.springframework.format.annotation.DateTimeFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

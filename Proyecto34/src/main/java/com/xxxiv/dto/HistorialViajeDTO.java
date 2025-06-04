@@ -1,9 +1,9 @@
 package com.xxxiv.dto;
 
+import java.time.LocalDate;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
