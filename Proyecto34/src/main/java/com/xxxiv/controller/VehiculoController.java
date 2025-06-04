@@ -117,6 +117,7 @@ public class VehiculoController {
 	    filtro.setEsAccesible(esAccesible);
 	    filtro.setPuertas(puertas);
 	    filtro.setTipo(tipo);
+	    filtro.setEstado(Estado.DISPONIBLE);
 
 	    Page<Vehiculo> vehiculos = vehiculoService.buscarVehiculos(filtro, safePageable);
 	    return ResponseEntity.ok(vehiculos);
