@@ -81,7 +81,7 @@ public class AuthService {
 
         if (optional.isPresent()) {
             String token = jwtUtil.generarTokenRecuperacion(optional.get().getEmail());
-            String link = "https://localhost:5173/pass?token=" + token;
+            String link = "http://localhost:5173/panel/pass?token=" + token;
             
             String cuerpoHTML = """
                     <p>Hola,</p>
