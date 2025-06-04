@@ -217,6 +217,8 @@ public class ReservaService {
      * @param id ID de la reserva
      */
     public void eliminarReserva(int id) {
+    	cancelarReserva(id);
+    	
     	reservaRepository.deleteById(id);
     }
 }

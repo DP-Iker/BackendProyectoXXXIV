@@ -86,7 +86,7 @@ public class AuthService {
             String cuerpoHTML = """
                     <p>Hola,</p>
                     <p>Has solicitado restablecer tu contraseña.</p>
-                    <p>Haz clic en el siguiente enlace para continuar:</p>
+                    <p>Haz click en el siguiente enlace para continuar:</p>
                     <a href="%s">%s</a>
                     <p>Si no solicitaste este cambio, ignora este correo.</p>
                     """.formatted(link, link);
