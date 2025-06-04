@@ -1,12 +1,18 @@
 package com.xxxiv.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import com.xxxiv.model.enums.Estado;
-import com.xxxiv.model.enums.EstadoCarnet;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,17 +28,17 @@ public class Carnet {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    @MapsId  // Indica que usa el mismo valor de PK que el usuario
+    @MapsId
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @Column(length = 9, unique = true, nullable = false)
+    @Column(length = 9, unique = true)
     private String dni;
 
-    @Column(length = 45)
+    @Column(length = 50)
     private String nombre;
 
-    @Column(length = 45)
+    @Column(length = 50)
     private String apellido;
 
     private LocalDate fechaNacimiento;
@@ -41,10 +47,12 @@ public class Carnet {
 
     private LocalDate fechaCaducidad;
 
-    @Column(length = 45)
+    @Column(length = 100, name = "imagen_url", nullable = false)
     private String imagenUrl;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado", nullable = false)
-    private EstadoCarnet estado = EstadoCarnet.PENDIENTE;
+    @Column(name = "esta_validado", nullable = false)
+    private boolean estaValidado = false;
+
+    @Column(name = "fecha_solicitud", nullable = false)
+    private LocalDateTime fechaSolicitud;
 }

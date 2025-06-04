@@ -1,5 +1,6 @@
 package com.xxxiv.service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -76,10 +77,14 @@ public class ViajeService {
 	public Viaje finalizarViaje(int id, String nombreUsuario, int kilometrajeNuevo) {
 		Viaje viaje = obtenerViajePropioPorId(nombreUsuario, id);
 		Vehiculo vehiculo = viaje.getVehiculo();
+		LocalDateTime fechaFin = LocalDateTime.now();
 		
 		// Resta los km que tenia antes del viaje a los que tiene ahora para obtener los recorridos
 		int kmRecorridos = kilometrajeNuevo - viaje.getVehiculo().getKilometraje();
-		double precio = calcularPrecioViaje(vehiculo.getTipo(), kmRecorridos);
+		long horas = Duration.between(viaje.getFechaInicio(), fechaFin).toHours();
+	    if (horas == 0) horas = 1;
+	    
+		double precio = calcularPrecioViaje(vehiculo.getTipo(), kmRecorridos, (int) horas);
 		
 		// Pone el vehículo en disponible
 		vehiculo.setKilometraje(kilometrajeNuevo);
@@ -87,7 +92,7 @@ public class ViajeService {
 		vehiculoService.guardarVehiculo(vehiculo);
 		
 		// Actualiza los datos del viaje
-		viaje.setFechaFin(LocalDateTime.now());
+		viaje.setFechaFin(fechaFin);
 		viaje.setKmRecorridos(kmRecorridos);
 		viaje.setPrecio(precio);
 
@@ -105,27 +110,27 @@ public class ViajeService {
 	 * @param kmRecorridos km recorridos
 	 * @return Devuelve un double con el precio
 	 */
-	private double calcularPrecioViaje(Tipo tipoVehiculo, int kmRecorridos) {
+	private double calcularPrecioViaje(Tipo tipoVehiculo, int kmRecorridos, int horas) {
 		double base = 10.0;
 	    double multiplicador;
 
 	    switch (tipoVehiculo) {
 	        case TURISMO:
-	            multiplicador = 0.25;
+	            multiplicador = 0.5;
 	            break;
 	        case SUV:
-	            multiplicador = 0.35;
+	            multiplicador = 0.7;
 	            break;
 	        case BIPLAZA:
-	            multiplicador = 0.30;
+	            multiplicador = 0.4;
 	            break;
 	        case MONOVOLUMEN:
-	            multiplicador = 0.40;
+	            multiplicador = 0.6;
 	            break;
 	        default:
 	        	throw new ResponseStatusException(HttpStatus.CONFLICT, "Tipo de vehículo inválido");
 	    }
 
-	    return base + (kmRecorridos * multiplicador);
+	    return base + (kmRecorridos * multiplicador) + (horas * 5);
 	}
 }

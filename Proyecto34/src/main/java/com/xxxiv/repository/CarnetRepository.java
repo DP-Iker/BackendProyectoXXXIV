@@ -12,9 +12,5 @@ import java.util.Optional;
 
 @Repository
 public interface CarnetRepository extends JpaRepository<Carnet, Integer> {
-    Optional<Carnet> findByUsuario(Usuario usuario);
-
-    Optional<Carnet> findByUsuarioUsuario(String usuario);
-    List<Carnet> findByEstadoIn(Collection<EstadoCarnet> estados);
-
+	List<Carnet> findByEstaValidadoFalseOrderByFechaSolicitudAsc();
 }

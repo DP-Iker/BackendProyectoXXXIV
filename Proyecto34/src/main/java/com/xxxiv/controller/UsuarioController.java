@@ -87,8 +87,7 @@ public class UsuarioController {
 	@SecurityRequirement(name = "bearerAuth")
 	@Operation(summary = "Devuelve al usuario según su token de sesión", description = "Devuelve todos los datos del usuario que pide la información")
 	public ResponseEntity<UsuarioDTO> obtenerUsuarioAutenticado(Authentication authentication) {
-		String username = authentication.getName();
-		Usuario usuarioDb = usuarioService.obtenerUsuarioPorNombre(username);
+		Usuario usuarioDb = usuarioService.obtenerUsuarioPorNombre(authentication.getName());
 
 		// Crea el DTO
 		UsuarioDTO usuario = new UsuarioDTO();
