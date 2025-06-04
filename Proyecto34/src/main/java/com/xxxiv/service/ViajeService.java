@@ -67,6 +67,7 @@ public class ViajeService {
 	    viaje.setVehiculo(reserva.getVehiculo());
 	    viaje.setFechaInicio(LocalDateTime.now());
 	    viaje.setCods(new ArrayList<>());
+	    viaje.setReserva(reserva);
 
 	    return viajeRepository.save(viaje);
 	}

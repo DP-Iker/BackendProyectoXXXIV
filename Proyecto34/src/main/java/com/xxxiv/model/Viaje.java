@@ -1,6 +1,7 @@
 package com.xxxiv.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -54,5 +55,5 @@ public class Viaje {
 
 	@Convert(converter = CoordinateListConverter.class)
 	@Column(columnDefinition = "JSON", nullable = false)
-	private List<Coordinate> cods;
+	private List<Coordinate> cods = new ArrayList<>();
 }

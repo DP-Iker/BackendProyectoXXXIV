@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Coordinate {
-    private double lat;
-    private double lng;
+    private Double lat;
+    private Double lng;
 }
