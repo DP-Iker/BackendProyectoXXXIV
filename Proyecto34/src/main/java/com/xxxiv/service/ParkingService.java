@@ -7,7 +7,8 @@ import com.xxxiv.model.Parking;
 import com.xxxiv.repository.ParkingRepository;
 import com.xxxiv.specifications.ParkingSpecification;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,16 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ParkingService {
-    @Autowired
-    ParkingRepository parkingRepository;
-
-    public ParkingService(ParkingRepository parkingRepository) {
-        this.parkingRepository = parkingRepository;
-    }
+	
+    private final ParkingRepository parkingRepository;
 
     @Transactional(readOnly = true)
-    public Parking findById(Integer id) {
+    public Parking obtenerParkingPorId(Integer id) {
         return parkingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Parking no encontrado con id=" + id));
     }
@@ -82,7 +80,7 @@ public class ParkingService {
     @Transactional
     public Parking replacePolygon(Integer parkingId, List<double[]> newPoints) {
         // Obtenemos el Parking o lanzamos excepción si no existe
-        Parking parking = findById(parkingId);
+        Parking parking = obtenerParkingPorId(parkingId);
 
         // Creamos la nueva lista de Coordinate a partir de los puntos recibidos
         List<Coordinate> newCoordinates = new ArrayList<>();

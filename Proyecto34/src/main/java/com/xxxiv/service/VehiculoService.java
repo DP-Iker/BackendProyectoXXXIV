@@ -189,4 +189,14 @@ public class VehiculoService {
 		
 		vehiculoRepository.delete(vehiculo);
 	}
+	
+	/**
+	 * Guarda un vehículo
+	 * @param vehiculo Vehículo
+	 * @return Devuelve el vehículo
+	 */
+	public Vehiculo guardarVehiculo(Vehiculo vehiculo) {
+        return vehiculoRepository.save(vehiculo);
+    }
+
 }

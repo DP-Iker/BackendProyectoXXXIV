@@ -44,12 +44,6 @@ public class Viaje {
 
 	@Column(name = "km_recorridos")
 	private Integer kmRecorridos;
-
-	@Column(name = "latitud")
-	private Double latitud;
-
-	@Column(name = "longitud")
-	private Double longitud;
 	
 	@Column(name = "precio")
 	private Double precio;

@@ -17,16 +17,14 @@ public class RutaController {
     private final RutaService rutaService;
 
     @GetMapping("/viaje/{viajeId}")
-    public ResponseEntity<RutaDTO> obtenerRuta(@PathVariable("viajeId") Integer viajeId) {
+    public ResponseEntity<RutaDTO> obtenerRuta(@PathVariable Integer viajeId) {
         RutaDTO dto = rutaService.obtenerRutaPorViaje(viajeId);
         return ResponseEntity.ok(dto);
     }
 
 
     @PutMapping("/viaje/{viajeId}")
-    public ResponseEntity<RutaDTO> reemplazarRuta(
-            @PathVariable("viajeId") Integer viajeId,
-            @Valid @RequestBody RutaDTO rutaDTO) {
+    public ResponseEntity<RutaDTO> reemplazarRuta(@PathVariable Integer viajeId, @Valid @RequestBody RutaDTO rutaDTO) {
 
         // Solo tomamos rutaDTO.getPuntos() para reemplazar la ruta interna del viaje
         RutaDTO dtoActualizada = rutaService.reemplazarRuta(viajeId, rutaDTO.getPuntos());

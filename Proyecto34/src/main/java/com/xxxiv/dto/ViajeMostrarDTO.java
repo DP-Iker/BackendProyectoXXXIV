@@ -17,8 +17,6 @@ public class ViajeMostrarDTO {
 	private Integer kmRecorridos;
 	private Integer usuarioId;
 	private Integer vehiculoId;
-	private Double longitud;
-	private Double latitud;
 	private Double precio;
 
 	public static ViajeMostrarDTO fromEntity(Viaje viaje) {
@@ -35,8 +33,6 @@ public class ViajeMostrarDTO {
 		if (viaje.getVehiculo() != null) {
 			dto.setVehiculoId(viaje.getVehiculo().getId());
 		}
-		dto.setLatitud(viaje.getLatitud());
-		dto.setLongitud(viaje.getLongitud());
 		dto.setPrecio(viaje.getPrecio());
 
 		return dto;
