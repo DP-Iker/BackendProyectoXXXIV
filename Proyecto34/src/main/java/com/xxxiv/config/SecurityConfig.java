@@ -39,6 +39,8 @@ public class SecurityConfig {
             	.requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/vehiculos", "/vehiculos/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/noticias", "/noticias/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/parkings", "/parkings/**").permitAll()
                 .requestMatchers("/error").permitAll()
 
                 // Cualquier otro endpoint requiere autenticación
