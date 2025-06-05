@@ -3,12 +3,15 @@ package com.xxxiv.controller;
 import com.xxxiv.dto.CalificacionDTO;
 import com.xxxiv.model.Calificacion;
 import com.xxxiv.service.CalificacionService;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +24,7 @@ public class CalificacionController {
     CalificacionService calificacionService;
 
     @PostMapping
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Calificacion> crearCalificacion(@Valid @RequestBody Calificacion calificacion) {
         Calificacion creada = calificacionService.crear(calificacion);
         return ResponseEntity.status(HttpStatus.CREATED).body(creada);
@@ -46,6 +50,7 @@ public class CalificacionController {
     }
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Calificacion> actualizarCalificacion(
             @PathVariable Integer id,
             @Valid @RequestBody Calificacion calificacion) {
@@ -54,6 +59,8 @@ public class CalificacionController {
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarCalificacion(@PathVariable Integer id) {
         calificacionService.eliminar(id);
         return ResponseEntity.noContent().build();

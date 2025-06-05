@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/vehiculos", "/vehiculos/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/noticias", "/noticias/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/parkings", "/parkings/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/calificaciones", "/calificaciones/**").permitAll()
                 .requestMatchers("/error").permitAll()
 
                 // Endpoints que requieren Admin

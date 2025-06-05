@@ -20,6 +20,7 @@ public class RutaController {
     private final RutaService rutaService;
 
     @GetMapping("/viaje/{viajeId}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<RutaDTO> obtenerRuta(@PathVariable Integer viajeId) {
         RutaDTO dto = rutaService.obtenerRutaPorViaje(viajeId);
         return ResponseEntity.ok(dto);
@@ -27,6 +28,7 @@ public class RutaController {
 
 
     @PutMapping("/viaje/{viajeId}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<RutaDTO> reemplazarRuta(@PathVariable Integer viajeId, @Valid @RequestBody RutaDTO rutaDTO) {
 
         // Solo tomamos rutaDTO.getPuntos() para reemplazar la ruta interna del viaje

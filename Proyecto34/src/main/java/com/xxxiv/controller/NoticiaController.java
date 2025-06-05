@@ -81,35 +81,39 @@ public class NoticiaController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<Noticia> crear(
-			@RequestBody CrearNoticiaDTO dto, 
-			@RequestPart("imagen") MultipartFile imagen) throws IOException {
-		
-		try {
-			if (dto.getUsuario() == null || dto.getUsuario().isBlank()) {
-				return ResponseEntity.badRequest().build();
-			}
+	        @RequestPart("dto") CrearNoticiaDTO dto,
+	        @RequestPart(value = "imagen", required = false) MultipartFile imagen) throws IOException {
 
-			String imagenUrl = imgurService.subirImagen(imagen.getBytes());
-			Usuario usuario = usuarioService.obtenerUsuarioPorNombre(dto.getUsuario());
+	    try {
+	        if (dto.getUsuario() == null || dto.getUsuario().isBlank()) {
+	            return ResponseEntity.badRequest().build();
+	        }
 
-			Noticia noticia = new Noticia();
-			noticia.setTitulo(dto.getTitulo());
-			noticia.setContenido(dto.getContenido());
-			noticia.setImagenUrl(imagenUrl);
-			noticia.setIdiomaCodigo(Idioma.valueOf(dto.getIdiomaCodigo()));
-			noticia.setCreatedAt(dto.getFecha());
-			noticia.setUsuario(usuario);
+	        String imagenUrl = null;
+	        if (imagen != null && !imagen.isEmpty()) {
+	            imagenUrl = imgurService.subirImagen(imagen.getBytes());
+	        }
 
-			Noticia creada = noticiaService.crearNoticia(noticia, usuario.getUsuario());
+	        Usuario usuario = usuarioService.obtenerUsuarioPorNombre(dto.getUsuario());
 
-			return ResponseEntity.status(HttpStatus.CREATED).body(creada);
-		} catch (IllegalArgumentException e) {
-			// Si el idioma es inválido, por ejemplo
-			return ResponseEntity.badRequest().build();
-		} catch (EntityNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
+	        Noticia noticia = new Noticia();
+	        noticia.setTitulo(dto.getTitulo());
+	        noticia.setContenido(dto.getContenido());
+	        noticia.setImagenUrl(imagenUrl);
+	        noticia.setIdiomaCodigo(Idioma.valueOf(dto.getIdiomaCodigo()));
+	        noticia.setCreatedAt(dto.getFecha());
+	        noticia.setUsuario(usuario);
+
+	        Noticia creada = noticiaService.crearNoticia(noticia, usuario.getUsuario());
+
+	        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.badRequest().build();
+	    } catch (EntityNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+	    }
 	}
+
 
 	@PutMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
