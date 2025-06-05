@@ -24,16 +24,9 @@ public class Noticia {
     @Lob
     @Column(nullable = false)
     private String contenido;
-
-
-//    @Column(name = "usuario_id")
-//    private Integer usuarioId;
-
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JsonIgnore
-// //    @MapsId  // Indica que usa el mismo valor de PK que el usuario
-//    @JoinColumn(name = "usuario_id")
-//    private Usuario usuario;
+    
+    @Column(length = 100)
+    private String imagenUrl;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "usuario_id", nullable = false, foreignKey = @ForeignKey(name = "fk_noticia_usuario"))

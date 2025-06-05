@@ -6,6 +6,7 @@ import com.xxxiv.dto.NoticiaDTO;
 import com.xxxiv.model.Noticia;
 import com.xxxiv.model.Usuario;
 import com.xxxiv.model.enums.Idioma;
+import com.xxxiv.service.ImgurService;
 import com.xxxiv.service.NoticiaService;
 import com.xxxiv.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +36,7 @@ public class NoticiaController {
 
 	private final NoticiaService noticiaService;
 	private final UsuarioService usuarioService;
+	private final ImgurService imgurService;
 
 	@GetMapping
 	@Operation(summary = "Devuelve todas las noticias", description = "Permite filtrar, paginar y ordenar las noticias existentes en la BD")
@@ -86,11 +88,13 @@ public class NoticiaController {
 				return ResponseEntity.badRequest().build();
 			}
 
+			String imagenUrl = imgurService.subirImagen(imagen.getBytes());
 			Usuario usuario = usuarioService.obtenerUsuarioPorNombre(dto.getUsuario());
 
 			Noticia noticia = new Noticia();
 			noticia.setTitulo(dto.getTitulo());
 			noticia.setContenido(dto.getContenido());
+			noticia.setImagenUrl(imagenUrl);
 			noticia.setIdiomaCodigo(Idioma.valueOf(dto.getIdiomaCodigo()));
 			noticia.setCreatedAt(dto.getFecha());
 			noticia.setUsuario(usuario);

@@ -41,11 +41,11 @@ public class Viaje {
 	@JoinColumn(name = "reserva_id", referencedColumnName = "id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_viaje_reserva"))
 	private Reserva reserva;
 
-	@Column(name = "fecha_inicio", nullable = false)
-	private LocalDateTime fechaInicio;
+	@Column(name = "fecha_inicio", nullable = false, columnDefinition = "DATETIME")
+    private LocalDateTime fechaInicio;
 
-	@Column(name = "fecha_fin")
-	private LocalDateTime fechaFin;
+    @Column(name = "fecha_fin", columnDefinition = "DATETIME")
+    private LocalDateTime fechaFin;
 
 	@Column(name = "km_recorridos")
 	private Integer kmRecorridos;

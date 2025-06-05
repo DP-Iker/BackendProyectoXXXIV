@@ -38,6 +38,6 @@ public class Reserva {
 	private LocalDateTime fechaReserva;
 
 	@Enumerated(EnumType.STRING)
-	@Column(length = 20, nullable = false)
+	@Column(nullable = false, columnDefinition = "ENUM('CANCELADA','CONFIRMADA','PENDIENTE')")
 	private EstadoReserva estado = EstadoReserva.PENDIENTE;
 }
