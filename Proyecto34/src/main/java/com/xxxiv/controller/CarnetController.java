@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -29,6 +35,8 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 public class CarnetController {
 
+	@Value("${file.upload-dir}")
+    private String uploadDir;
 	private final CarnetService carnetService;
 	private final UsuarioService usuarioService;
 
@@ -49,7 +57,27 @@ public class CarnetController {
 	    
 	    return ResponseEntity.ok(carnet);
 	}
+	
+	@GetMapping("/imagen/{nombreArchivo:.+}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<Resource> obtenerImagen(@PathVariable String nombreArchivo) throws IOException {
+	    Path rutaImagen = Paths.get(uploadDir).resolve(nombreArchivo).normalize();
+	    Resource recurso = new UrlResource(rutaImagen.toUri());
 
+	    if (!recurso.exists() || !recurso.isReadable()) {
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    // Detectar content type dinámicamente
+	    String contentType = Files.probeContentType(rutaImagen);
+	    if (contentType == null) {
+	        contentType = "application/octet-stream";
+	    }
+
+	    return ResponseEntity.ok()
+	            .contentType(MediaType.parseMediaType(contentType))
+	            .body(recurso);
+	}
 	
 	// POST
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
