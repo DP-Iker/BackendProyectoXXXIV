@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.xxxiv.dto.ViajeDTO;
 import com.xxxiv.dto.FiltroViajesDTO;
+import com.xxxiv.dto.FinalizarViajeDTO;
 import com.xxxiv.dto.ViajeResumenDTO;
 import com.xxxiv.model.Viaje;
 import com.xxxiv.service.UsuarioService;
@@ -28,6 +29,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -145,10 +147,10 @@ public class ViajeController {
 
 	@PatchMapping("/{id}/finalizar")
 	public ResponseEntity<ViajeDTO> finalizarViaje(Authentication authentication, @PathVariable Integer id,
-			@RequestBody int kilometraje) {
+			@RequestBody @Valid FinalizarViajeDTO dto) {
 
 		String nombreUsuario = authentication.getName();
-		Viaje viajeFinalizado = viajeService.finalizarViaje(id, nombreUsuario, kilometraje);
+		Viaje viajeFinalizado = viajeService.finalizarViaje(id, nombreUsuario, dto.getKilometraje());
 		ViajeDTO viajeFormatado = new ViajeDTO(viajeFinalizado);
 
 		return ResponseEntity.ok(viajeFormatado);

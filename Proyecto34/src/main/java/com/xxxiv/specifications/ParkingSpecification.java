@@ -8,7 +8,6 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ParkingSpecification {
     public static Specification<Parking> buildSpecification(FiltroParkingDTO filtro) {

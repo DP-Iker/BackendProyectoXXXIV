@@ -4,8 +4,6 @@ import com.xxxiv.dto.FiltroNoticiasDTO;
 import com.xxxiv.model.Noticia;
 import org.springframework.data.jpa.domain.Specification;
 
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
