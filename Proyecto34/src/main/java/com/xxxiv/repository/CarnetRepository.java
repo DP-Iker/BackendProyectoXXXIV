@@ -13,4 +13,5 @@ import java.util.Optional;
 @Repository
 public interface CarnetRepository extends JpaRepository<Carnet, Integer> {
 	List<Carnet> findByEstaValidadoFalseOrderByFechaSolicitudAsc();
+	boolean existsByUsuarioId(Integer usuarioId);
 }

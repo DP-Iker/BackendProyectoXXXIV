@@ -7,6 +7,7 @@ import com.xxxiv.model.Usuario;
 import com.xxxiv.service.CarnetService;
 import com.xxxiv.service.UsuarioService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -53,10 +54,10 @@ public class CarnetController {
 	// POST
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<Carnet> crearSolicitud(Authentication authentication, @RequestParam MultipartFile imagen) throws IOException {
+	public ResponseEntity<CarnetSinValidarDTO> crearSolicitud(Authentication authentication, @RequestParam MultipartFile imagen) throws IOException {
 		Usuario usuario = usuarioService.obtenerUsuarioPorNombre(authentication.getName());
 		try {
-			Carnet carnet = carnetService.crearSolicitud(usuario, imagen);
+			CarnetSinValidarDTO carnet = carnetService.crearSolicitud(usuario, imagen);
 			return new ResponseEntity<>(carnet, HttpStatus.CREATED);
 
 		} catch (IllegalArgumentException e) {
@@ -70,6 +71,17 @@ public class CarnetController {
 	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<Void> validarCarnet(@PathVariable int id, @RequestBody @Valid ValidarCarnetDTO dto) {
 		carnetService.validarCarnet(id, dto);
+		
+		return ResponseEntity.noContent().build();
+	}
+	
+	// DELETE
+	@DeleteMapping("{id}")
+	@SecurityRequirement(name = "bearerAuth")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "Elimina un vehículo", description = "Elimina el vehículo por ID")
+	public ResponseEntity<Void> eliminarVehiculo(@PathVariable int id) {
+		carnetService.eliminarCarnet(id);
 		
 		return ResponseEntity.noContent().build();
 	}

@@ -43,6 +43,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/parkings", "/parkings/**").permitAll()
                 .requestMatchers("/error").permitAll()
 
+                // Endpoints que requieren Admin
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                
                 // Cualquier otro endpoint requiere autenticación
                 .anyRequest().authenticated()
             )

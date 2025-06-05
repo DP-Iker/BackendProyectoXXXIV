@@ -6,6 +6,7 @@ import com.xxxiv.dto.CarnetSinValidarDTO;
 import com.xxxiv.dto.ValidarCarnetDTO;
 import com.xxxiv.model.Carnet;
 import com.xxxiv.model.Usuario;
+import com.xxxiv.model.Vehiculo;
 import com.xxxiv.model.enums.EstadoCarnet;
 import com.xxxiv.repository.CarnetRepository;
 import com.xxxiv.repository.UsuarioRepository;
@@ -46,6 +47,10 @@ public class CarnetService {
     private String uploadDir;
     private final CarnetRepository carnetRepository;
     
+    /**
+     * Crea una lista con todos los carnets que faltan por validar
+     * @return Lista con carnets ordenados (de mas antiguos primero)
+     */
     public List<CarnetSinValidarDTO> obtenerCarnetsSinValidarOrdenados() {
         List<Carnet> carnetsSinValidar = carnetRepository.findByEstaValidadoFalseOrderByFechaSolicitudAsc();
 
@@ -58,14 +63,32 @@ public class CarnetService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * Obtiene el carnet por su ID
+     * 
+     * @param id ID del carnet
+     * @return Devuelve el Carnet
+     */
     public Carnet obtenerCarnetPorId(int id) {
     	return carnetRepository.findById(id)
     	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Carnet no encontrado"));
     }
 
-    public Carnet crearSolicitud(Usuario usuario, MultipartFile imagen) throws IOException {
+    /**
+     * Crea una solicitud para validar el carnet
+     * 
+     * @param usuario Usuario
+     * @param imagen Imagen del carnet
+     * @return Devuelve el carnet con los campos que se han rellenado
+     * @throws IOException
+     */
+    public CarnetSinValidarDTO crearSolicitud(Usuario usuario, MultipartFile imagen) throws IOException {
+    	if (carnetRepository.existsByUsuarioId(usuario.getId())) {
+    		throw new ResponseStatusException(HttpStatus.CONFLICT, "Este usuario ya tiene un carnet");
+        }
+    	
     	if (imagen.isEmpty() || !imagen.getContentType().startsWith("image/")) {
-            throw new IllegalArgumentException("Archivo inválido");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Archivo no válido");
         }
 
         // Guardar imagen
@@ -77,9 +100,17 @@ public class CarnetService {
         carnet.setImagenUrl(rutaImagen);
         carnet.setFechaSolicitud(LocalDateTime.now());
     	
-    	return carnetRepository.save(carnet);
+    	carnetRepository.save(carnet);
+    	
+    	return new CarnetSinValidarDTO(carnet);
     }
     
+    /**
+     * Valida el carnet con los campos correspondientes
+     * 
+     * @param id ID del carnet
+     * @param dto Campos
+     */
     public void validarCarnet(int id, ValidarCarnetDTO dto) {
     	Carnet carnet = obtenerCarnetPorId(id);
     	
@@ -126,4 +157,15 @@ public class CarnetService {
         // Devolver la ruta pública accesible desde el frontend
         return "/uploads/carnets/" + nombreArchivo;
     }
+    
+    /**
+     * Elimina el carnet por ID
+     * 
+     * @param id ID del carnet
+     */
+    public void eliminarCarnet(int id) {
+		Carnet carnet = obtenerCarnetPorId(id);
+		
+		carnetRepository.delete(carnet);
+	}
 }
